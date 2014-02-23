@@ -2,14 +2,21 @@
 // kernel/src/kmain.c
 //
 
+#include "common.h"
 #include "stubout.h"
 
 static void init_bss(void);
 static void init_ro(void);
 
-void __attribute___((noreturn)) kmain(void)
+void __attribute__((noreturn)) kmain(void)
 {
 	init_bss();
+
+	dputs("jello");
+
+	for (;;) {
+		asm("hlt");
+	}
 }
 
 static void init_bss(void)

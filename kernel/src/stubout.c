@@ -2,7 +2,7 @@
 // kernel/src/stubout.c
 //
 
-#include <types.h>
+#include "asm.h"
 #include "stubout.h"
 
 void dputc(char c)
@@ -10,13 +10,13 @@ void dputc(char c)
 #define DINK 0x75
 
 	static ushort sport = 0;
-	static uchar * debug_cur = 0xB8000;//TODO fix magic
+	static uchar * debug_cur = (uchar *)0xB8000;//TODO fix magic
 
 	// vga output
 	if (c == 10) {
 		do {
 			dputc(' ');
-		while ((ulong)debug_cur % 160);
+		} while ((ulong)debug_cur % 160);
 	} else {
 		// TODO scroll or wrap
 		debug_cur[0] = c;
@@ -32,7 +32,7 @@ void dputc(char c)
 	outb(sport, c);
 
 #undef DINK
-}  
+}
 
 void dputs(char * str)
 {

@@ -5,13 +5,13 @@
 -include ../estab.mk
 include $(TOPD)/local.mk
 
-TARGET := kernel
+TARGET := kernel.bin
 ENV    := kernel
-SRCS   := kmain.c
+CSRCS  := kmain.c stubout.c
 
-LOCAL_CFLAGS  :=
+LOCAL_CFLAGS  := -m64 -ffreestanding -nostdinc -mcmodel=large -mno-red-zone
 LOCAL_ASFLAGS :=
-LOCAL_LDFLAGS :=
+LOCAL_LDFLAGS := -m64 -ffreestanding -nostdlib -mcmodel=large -mno-red-zone -T$(CD)/kernel.ld
 
-include $(TOPD)/build/template.mk
+include $(TOPD)/template.mk
 include $(TOPD)/rules.mk

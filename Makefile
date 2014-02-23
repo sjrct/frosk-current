@@ -6,8 +6,10 @@
 include $(TOPD)/local.mk
 
 TARGET := $(CD)/frosk.img
-SUB    := util boot
-SUBTR  := util/util.fake boot/boot.bin
+
+SUB    := util boot kernel
+SUBTR  := util/util.fake boot/boot.bin kernel/kernel.bin
+
 SUBMK  := $(foreach S,$(SUB),$(CD)/$S/Makefile)
 SUBTR  := $(foreach S,$(SUBTR),$(CD)/$S)
 SUBCL  := $(foreach T,$(SUBTR),$T/clean)

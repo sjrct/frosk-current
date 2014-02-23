@@ -15,7 +15,7 @@ SHELL := bash
 TOPD := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 # include the configuration file
-include config.mk
+include $(TOPD)/config.mk
 
 # programs to use
 CC  := gcc

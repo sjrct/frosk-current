@@ -1,0 +1,37 @@
+;//
+;// include/boot/common.both
+;// include/kernel/common.both
+;//
+
+;// Memory Location definitions
+define( RFSMB_LOC,     0x1000 )
+define( PM_L4_LOC,     0x2000 )
+define( PM_L3_LOC,     0x3000 )
+define( PM_L2_LOC,     0x4000 )
+define( PM_L1_LOC,     0x5000 )
+define( LEFTOVERS_LOC, 0x7000 )
+define( BOOT_LOC,      0x7C00 )
+define( TSS_SEG_LOC,   0x9000 )
+define( KMEM_START,    0xA000 )
+define( KERNEL_LOC,    0x10000 ) ;// reflected in 'kernel/kernel.ld'
+define( DEF_STACK_LOC, 0x80000 )
+define( USPACE_BOT,    0x100000 ) ;// reflected in 'prgm/prgm.ld'
+define( LOW_HALF_TOP,  0x800000000000 )
+define( HIGH_HALF_BOT, 0xFFFF800000000000 )
+
+define( PAGE_SIZE,      0x1000 )
+define( CANON_SIZE,     0x800000000000 )
+define( NON_CANON_SIZE, 0xFFFF000000000000 )
+
+;// Selectors
+define( KERN_CS, 0x08 )
+define( KERN_DS, 0x10 )
+define( USER_CS, 0x18 )
+define( USER_DS, 0x20 )
+define( TSS_SEL, 0x28 )
+
+;// 1024x768x256
+;// define( GRAPHICS_MODE, 0x4118 )
+
+define( IRQ0, 0x20 )
+define( SYSCALL_INT, 0x40 )

@@ -92,11 +92,19 @@ int main(int argc, char ** argv)
 				if (out != stdin) fclose(in);
 				input_file = argv[i] + 2;
 				in = fopen(input_file, "r");
+
+				if (in == NULL)
+					error("could not open '%s' for reading", input_file);
+
 				break;
 
 			case 'o':
 				if (out != stdout) fclose(out);
 				out = fopen(argv[i] + 2, "w");
+
+				if (out == NULL)
+					error("could not open '%s' for writing", argv[i] + 2);
+
 				break;
 
 			case 'b':

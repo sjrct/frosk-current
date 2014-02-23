@@ -15,11 +15,13 @@ SUBTR  := $(foreach S,$(SUBTR),$(CD)/$S)
 SUBCL  := $(foreach T,$(SUBTR),$T/clean)
 
 define block
-$(TARGET): $(SUBTR)
+$(TARGET): $(SUBTR) default.fsd
+	$$(call V1,$(FSB) -idefault.fsd -o$$@,FSB $$@)
+	$$(call V1,dd if=boot/boot.bin of=$$@ conv=notrunc 2> /dev/null,DD $$@)
 
 .PHONY: $(TARGET)/clean
 $(TARGET)/clean: $(SUBCL)
-	$(call V1,$(RM) $(TARGET),RM $(TARGET))
+	$$(call V1,$(RM) $(TARGET),RM $(TARGET))
 endef
 
 $(eval $(block))

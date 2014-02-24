@@ -26,9 +26,9 @@ FSB := $(TOPD)/util/fsb/fsb
 
 # setup program flags
 CONFIG := -DARCH=$(ARCH)
-GLOB_CFLAGS  = -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/
-GLOB_ASFLAGS = -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/ -I$(CD)/src/
-GLOB_LDFLAGS =
+GLOB_CFLAGS  = -Wall -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/
+GLOB_ASFLAGS = -Wall -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/ -I$(CD)/src/
+GLOB_LDFLAGS = -Wall
 
 CFLAGS  = $(GLOB_CFLAGS)  $(LOCAL_CFLAGS)
 ASFLAGS = $(GLOB_ASFLAGS) $(LOCAL_ASFLAGS)

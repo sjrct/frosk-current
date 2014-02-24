@@ -2,8 +2,13 @@
 // kernel/src/kmain.c
 //
 
+#include "debug.h"
 #include "common.h"
+#include "paging.h"
 #include "stubout.h"
+#include "interrupt.h"
+#include "memory/pages.h"
+#include "memory/kernel.h"
 
 static void init_bss(void);
 static void init_ro(void);
@@ -11,8 +16,13 @@ static void init_ro(void);
 void __attribute__((noreturn)) kmain(void)
 {
 	init_bss();
+//	init_ro();
 
-	dputs("jello");
+	dputs("frosk kernel entry\n");
+
+	setup_kernel_memory();
+	setup_pages();
+	setup_ints();
 
 	for (;;) {
 		asm("hlt");
@@ -44,3 +54,4 @@ static void init_ro(void)
 //		pageto((ulong)x, (ulong)x | 1);
 	}
 }
+

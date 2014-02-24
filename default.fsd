@@ -2,6 +2,4 @@
 # default.fsd
 #
 
-d:[name = boot, contents = {
-	f:[name = kernel.bin, actual = kernel/kernel.bin]
-}]
+f:[name = kernel.bin, actual = kernel/kernel.bin]

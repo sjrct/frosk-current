@@ -195,6 +195,8 @@ node_t * new_virt(const char * name, ulong lba, ulong size, node_t * parent)
 	bl->u.block.filename = NULL;
 
 	new->u.common.data = bl;
+
+	return new;
 }
 
 node_t * new_dir(const char * name, node_t * parent)
@@ -287,9 +289,9 @@ static void debug_node(FILE * f, node_t * n)
 		break;
 
 	case FNODE_BLOCK:
-		fprintf(f, "\tnode.block.lba  = %llx\n", n->u.block.lba);
+		fprintf(f, "\tnode.block.lba  = %lx\n", n->u.block.lba);
 		fprintf(f, "\tnode.block.next = %p\n",   n->u.block.next);
-		fprintf(f, "\tnode.block.size = %llx\n", n->u.block.size);
+		fprintf(f, "\tnode.block.size = %lx\n", n->u.block.size);
 		break;
 
 	case FNODE_BRANCH:
@@ -305,7 +307,7 @@ static void debug_meta(FILE * f, meta_t * m)
 	if (m == NULL) return;
 
 	fprintf(f, "meta(%p)\n", m);
-	fprintf(f, "\tmeta.lba   = %llx\n", m->lba);
+	fprintf(f, "\tmeta.lba   = %lx\n", m->lba);
 	fprintf(f, "\tmeta.base  = %x\n",   m->base);
 	fprintf(f, "\tmeta.shift = %x\n",   m->shift);
 	fprintf(f, "\tmeta.subs  = %x\n",   m->subs);
@@ -317,7 +319,7 @@ static void debug_meta(FILE * f, meta_t * m)
 void debug_fs(FILE * f)
 {
 	fprintf(f, "block_size = %x\n",   fs.block_size);
-	fprintf(f, "next_lba   = %llx\n", fs.next_lba);
+	fprintf(f, "next_lba   = %lx\n", fs.next_lba);
 	fprintf(f, "first_meta = %p\n",   fs.first_meta);
 	fprintf(f, "root       = %p\n",   fs.root);
 	fprintf(f, "free_data  = %p\n",   fs.free_data);

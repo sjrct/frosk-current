@@ -9,6 +9,7 @@
 #include <stdarg.h>
 
 void dputc(char);
+void dputs(const char *);
 void dputu(ulong, int);
 void dputl(long, int);
 void vdprintf(const char *, va_list);

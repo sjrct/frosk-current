@@ -15,15 +15,15 @@ $(TARGET): $(COBJS) $(AOBJS)
 	$$(call V1,$(LD) -o $$@ $$^ $(LDFLAGS),LD $$@)
 
 $(CD)/obj/%.c.o: $(CD)/src/%.c
-	$(V3) mkdir -p $(CD)/obj
-	$(V3) mkdir -p $(CD)/dep
+	$(V3) mkdir -p $$(dir $$@)
+	$(V3) mkdir -p $$(dir $$(subst /src/,/dep/,$$<))
 	$$(call V1,$(CC) $(CFLAGS) -c -o $$@ $$<,CC $$@)
 	$(V3) $(CC) $(CFLAGS) -M -MP -MT $$@ -MF $$(subst /src/,/dep/,$$<).d $$<
 
 $(CD)/obj/%.asm.o: $(CD)/src/%.asm
 	$(V3) mkdir -p $(CD)/obj
 	$(V3) mkdir -p $(CD)/dep
-	$$(call V1,$(AS) $(ASFLAGS) -felf64 -o $$@ $$<,AS $@)
+	$$(call V1,$(AS) $(ASFLAGS) -felf64 -o $$@ $$<,AS $$@)
 	$(V3) $(AS) $(ASFLAGS) -M -MP -MT $$@ $$< > $$(subst /src/,/dep/,$$<).d
 
 .PHONY: $(TARGET)/clean

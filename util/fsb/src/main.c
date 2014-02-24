@@ -72,7 +72,6 @@ static void error(const char * fmt, ...)
 int main(int argc, char ** argv)
 {
 	int i;
-	char * tmp;
 	source_t * src;
 
 	FILE * in  = stdin;

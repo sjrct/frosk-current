@@ -4,8 +4,12 @@
 # This file is always included in primary makefiles, after estab.mk
 #
 
-# reset local flags
+# reset local variables
+CSRCS  :=
+ASRCS  :=
+
 LOCAL_CFLAGS  :=
+LOCAL_ASFLAGS :=
 LOCAL_LDFLAGS :=
 
 # set the default goal and the clean goal

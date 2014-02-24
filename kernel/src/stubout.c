@@ -2,6 +2,7 @@
 // kernel/src/stubout.c
 //
 
+#include <util.h>
 #include "asm.h"
 #include "stubout.h"
 
@@ -14,9 +15,7 @@ void dputc(char c)
 
 	// vga output
 	if (c == 10) {
-		do {
-			dputc(' ');
-		} while ((ulong)debug_cur % 160);
+		debug_cur = (uchar *)align((ulong)debug_cur - 0xB8000, 80*2) + 0xB8000;
 	} else {
 		// TODO scroll or wrap
 		debug_cur[0] = c;
@@ -34,7 +33,7 @@ void dputc(char c)
 #undef DINK
 }
 
-void dputs(char * str)
+void dputs(const char * str)
 {
 	for (; *str != 0; str++) {
 		dputc(*str);

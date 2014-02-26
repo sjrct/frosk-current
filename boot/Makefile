@@ -3,7 +3,7 @@
 #
 
 -include ../estab.mk
-include $(TOPD)/local.mk
+include $(BLDD)/local.mk
 
 TARGET := $(CD)/boot.bin
 ENV    := boot
@@ -22,4 +22,5 @@ endef
 $(eval $(block))
 -include $(CD)/boot.d
 
-include $(TOPD)/rules.mk
+include $(BLDD)/rules.mk
+

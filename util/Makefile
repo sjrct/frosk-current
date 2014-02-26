@@ -3,7 +3,7 @@
 #
 
 -include ../estab.mk
-include $(TOPD)/local.mk
+include $(BLDD)/local.mk
 
 TARGET := $(CD)/util.fake
 UTIL   := fsb

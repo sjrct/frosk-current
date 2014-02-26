@@ -11,8 +11,9 @@ SHELL := bash
 # disable implicit rules
 .SUFFIXES:
 
-# the top directory path
+# directory paths
 TOPD := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+BLDD := $(TOPD)/build
 
 # include the configuration file
 include $(TOPD)/config.mk
@@ -28,7 +29,7 @@ FSB := $(TOPD)/util/fsb/fsb
 CONFIG := -DARCH=$(ARCH)
 GLOB_CFLAGS  = -Wall -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/
 GLOB_ASFLAGS = -Wall -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/ -I$(CD)/src/
-GLOB_LDFLAGS = -Wall
+GLOB_LDFLAGS =
 
 CFLAGS  = $(GLOB_CFLAGS)  $(LOCAL_CFLAGS)
 ASFLAGS = $(GLOB_ASFLAGS) $(LOCAL_ASFLAGS)

@@ -2,6 +2,8 @@
 // kernel/src/debug.h
 //
 
+#include "stubout.h"
+
 #undef assert
 
 #ifdef DEBUG

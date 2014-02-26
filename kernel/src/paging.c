@@ -6,17 +6,16 @@
 #include <common.h>
 #include "asm.h"
 #include "debug.h"
-//#include "error.h"
 #include "paging.h"
-//#include "scheduler.h"
 #include "memory/pages.h"
-//#include "memory/region.h"
 
 #define ERROR_PRESENT  0x01
 #define ERROR_WRITE    0x02
 #define ERROR_USER     0x04
 #define ERROR_RESERVED 0x08
 #define ERROR_EXECUTE  0x10
+
+#define PG_SWP_ENT (PM_L1_LOC + PG_SWP_LOC / 0x200)
 
 static qword get_entry(qword addr, qword tbl, int shf)
 {
@@ -33,13 +32,13 @@ static void down(qword addr, qword tbl, int shift)
 		v = alloc_pgs(PAGE_SIZE, PHYS_PAGES) | 7;
 
 		atq(entry) = v;
-		atq(PM_L1_LOC) = v;
-		invlpg(0);
+		atq(PG_SWP_ENT) = v;
+		invlpg(PG_SWP_LOC);
 
-		for (i = 0; i < PAGE_SIZE; i++) atb(i) = 0;
+		for (i = 0; i < PAGE_SIZE; i++) atb(PG_SWP_LOC + i) = 0;
 	} else {
-		atq(PM_L1_LOC) = v;
-		invlpg(0);
+		atq(PG_SWP_ENT) = v;
+		invlpg(PG_SWP_LOC);
 	}
 }
 
@@ -53,11 +52,10 @@ void pageto(ulong virt, ulong value)
 		virt -= NON_CANON_SIZE;
 	}
 
-	down(virt, PM_L4_LOC, 39);
-	down(virt, 0, 30);
-	down(virt, 0, 21);
-
-	atq(get_entry(virt, 0, 12)) = value;
+	down(virt, PM_L4_LOC,  39);
+	down(virt, PG_SWP_LOC, 30);
+	down(virt, PG_SWP_LOC, 21);
+	atq(get_entry(virt, PG_SWP_LOC, 12)) = value;
 }
 
 ulong getpage(ulong virt)
@@ -70,11 +68,10 @@ ulong getpage(ulong virt)
 		virt -= NON_CANON_SIZE;
 	}
 
-	down(virt, PM_L4_LOC, 39);
-	down(virt, 0, 30);
-	down(virt, 0, 21);
-
-	return get_entry(virt, 0, 12);
+	down(virt, PM_L4_LOC,  39);
+	down(virt, PG_SWP_LOC, 30);
+	down(virt, PG_SWP_LOC, 21);
+	return get_entry(virt, PG_SWP_LOC, 12);
 }
 /*
 void page_fault(ulong error, ulong cr2)

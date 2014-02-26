@@ -3,4 +3,5 @@
 *.a
 *.bin
 *.fake
+.gdbinit
 frosk.img

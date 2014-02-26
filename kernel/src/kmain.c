@@ -16,7 +16,7 @@ static void init_ro(void);
 void __attribute__((noreturn)) kmain(void)
 {
 	init_bss();
-//	init_ro();
+	init_ro();
 
 	dputs("frosk kernel entry\n");
 
@@ -48,10 +48,10 @@ static void init_ro(void)
 
 	char * x = _ro_start;
 
-//	assert(!( (ulong)_ro_start & (PAGE_SIZE-1) ));
+	assert(!( (ulong)_ro_start & (PAGE_SIZE-1) ));
 
 	for (; x < _ro_end; x += PAGE_SIZE) {
-//		pageto((ulong)x, (ulong)x | 1);
+		pageto((ulong)x, (ulong)x | 3);
 	}
 }
 

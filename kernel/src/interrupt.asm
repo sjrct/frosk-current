@@ -2,15 +2,14 @@
 ; interrupt.asm
 ;
 
+[default rel]
+
 %include "common.inc"
 
 %define PIC1 0x20
 %define PIC2 0xA0
 
 %define io_wait out 0x80, al
-
-[bits 64]
-[default rel]
 
 [section .text]
 
@@ -97,4 +96,8 @@ clr_irq:
 
 global dummy_int
 dummy_int:
+%ifdef __ARCH_X86_64
 	iretq
+%else
+	iret
+%endif

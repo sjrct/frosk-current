@@ -26,14 +26,27 @@ RM  := rm -f
 FSB := $(TOPD)/util/fsb/fsb
 
 # setup program flags
-CONFIG := -DARCH=$(ARCH)
-GLOB_CFLAGS  = -Wall -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/
-GLOB_ASFLAGS = -Wall -DARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/ -I$(CD)/src/
+GLOB_CFLAGS  = -Wall -D__ARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/
+GLOB_ASFLAGS = -Wall -D__ARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/ -I$(CD)/src/
 GLOB_LDFLAGS =
 
-CFLAGS  = $(GLOB_CFLAGS)  $(LOCAL_CFLAGS)
-ASFLAGS = $(GLOB_ASFLAGS) $(LOCAL_ASFLAGS)
-LDFLAGS = $(GLOB_LDFLAGS) $(LOCAL_LDFLAGS)
+CFLAGS  = $(GLOB_CFLAGS)  $(ARCH_CFLAGS)  $(LOCAL_CFLAGS)
+ASFLAGS = $(GLOB_ASFLAGS) $(ARCH_ASFLAGS) $(LOCAL_ASFLAGS)
+LDFLAGS = $(GLOB_LDFLAGS) $(ARCH_LDFLAGS) $(LOCAL_LDFLAGS)
+
+ifeq ($(ARCH),x86_64)
+  ARCH_CFLAGS  = -D__ARCH_X86_64 -m64 -mcmodel=large -mno-red-zone
+  ARCH_ASFLAGS = -D__ARCH_X86_64 -felf64
+  ARCH_LDFLAGS = -m64
+else
+  ifeq ($(ARCH),i386)
+    ARCH_CFLAGS  := -D__ARCH_I386 -m32
+    ARCH_ASFLAGS := -D__ARCH_I386 -felf
+    ARCH_LDFLAGS := -m32
+  else
+    $(error Unknown target archietecture '$(ARCH)')
+  endif
+endif
 
 #
 # Verbosity settings

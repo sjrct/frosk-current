@@ -17,16 +17,24 @@
 
 #define PG_SWP_ENT (PM_L1_LOC + PG_SWP_LOC / 0x200)
 
-static qword get_entry(qword addr, qword tbl, int shf)
+static ulong get_entry(ulong addr, ulong tbl, int shf)
 {
-	return tbl + (((addr >> shf) << 3) & 0xfff);
+#ifdef __ARCH_X86_64
+	#define LSHIFT 3
+#else
+	#define LSHIFT 2
+#endif
+
+	return tbl + (((addr >> shf) << LSHIFT) & 0xfff);
+
+#undef LSHIFT
 }
 
-static void down(qword addr, qword tbl, int shift)
+static void down(ulong addr, ulong tbl, int shift)
 {
 	long i;
-	qword entry = get_entry(addr, tbl, shift);
-	qword v = atq(entry);
+	ulong entry = get_entry(addr, tbl, shift);
+	ulong v = atq(entry);
 
 	if (!(v & 1)) {
 		v = alloc_pgs(PAGE_SIZE, PHYS_PAGES) | 7;
@@ -45,9 +53,9 @@ static void down(qword addr, qword tbl, int shift)
 void pageto(ulong virt, ulong value)
 {
 	assert(!(virt % PAGE_SIZE));
-
 	invlpg(virt);
 
+#ifdef __ARCH_X86_64
 	if (virt >= HIGH_HALF_BOT) {
 		virt -= NON_CANON_SIZE;
 	}
@@ -55,15 +63,18 @@ void pageto(ulong virt, ulong value)
 	down(virt, PM_L4_LOC,  39);
 	down(virt, PG_SWP_LOC, 30);
 	down(virt, PG_SWP_LOC, 21);
+#else
+	down(virt, PM_L2_LOC, 22);
+#endif
 	atq(get_entry(virt, PG_SWP_LOC, 12)) = value;
 }
 
 ulong getpage(ulong virt)
 {
 	assert(!(virt % PAGE_SIZE));
-
 	invlpg(virt);
 
+#ifdef __ARCH_X86_64
 	if (virt >= HIGH_HALF_BOT) {
 		virt -= NON_CANON_SIZE;
 	}
@@ -71,6 +82,9 @@ ulong getpage(ulong virt)
 	down(virt, PM_L4_LOC,  39);
 	down(virt, PG_SWP_LOC, 30);
 	down(virt, PG_SWP_LOC, 21);
+#else
+	down(virt, PM_L2_LOC, 22);
+#endif
 	return get_entry(virt, PG_SWP_LOC, 12);
 }
 /*

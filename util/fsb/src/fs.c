@@ -307,7 +307,7 @@ static void debug_meta(FILE * f, meta_t * m)
 	if (m == NULL) return;
 
 	fprintf(f, "meta(%p)\n", m);
-	fprintf(f, "\tmeta.lba   = %lx\n", m->lba);
+	fprintf(f, "\tmeta.lba   = %llx\n", m->lba);
 	fprintf(f, "\tmeta.base  = %x\n",   m->base);
 	fprintf(f, "\tmeta.shift = %x\n",   m->shift);
 	fprintf(f, "\tmeta.subs  = %x\n",   m->subs);
@@ -319,7 +319,7 @@ static void debug_meta(FILE * f, meta_t * m)
 void debug_fs(FILE * f)
 {
 	fprintf(f, "block_size = %x\n",   fs.block_size);
-	fprintf(f, "next_lba   = %lx\n", fs.next_lba);
+	fprintf(f, "next_lba   = %llx\n", fs.next_lba);
 	fprintf(f, "first_meta = %p\n",   fs.first_meta);
 	fprintf(f, "root       = %p\n",   fs.root);
 	fprintf(f, "free_data  = %p\n",   fs.free_data);

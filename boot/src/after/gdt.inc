@@ -30,7 +30,7 @@ gdt32:
 .end:
 
 ; gdt for 64-bit mode
-%ifidn ARCH,x86_64
+%ifidn __ARCH,x86_64
 gdt64:
 	dw .end - .null_seg
 	dd .null_seg

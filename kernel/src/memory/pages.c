@@ -55,7 +55,7 @@ void setup_pages(void)
 
 	pg = kalloc(sizeof(pages_t));
 	pg->addr = HIGH_HALF_BOT;
-	pg->size = CANON_SIZE;
+	pg->size = HALF_SIZE;
 	pg->next = pg;
 	heads[VIRT_PAGES] = pg;
 }

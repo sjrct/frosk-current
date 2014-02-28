@@ -120,8 +120,10 @@ pmode_start:
 	xor eax, eax
 	rep stosd
 
+%ifdef __ARCH_X86_64
 	mov dword [PM_L4_LOC], PM_L3_LOC | 7
 	mov dword [PM_L3_LOC], PM_L2_LOC | 7
+%endif
 	mov dword [PM_L2_LOC], PM_L1_LOC | 7
 
 	xor ecx, ecx
@@ -135,7 +137,7 @@ pmode_start:
 	cmp ecx, 512
 	jne .page_loop
 
-%ifidn ARCH,x86_64
+%ifdef __ARCH_X86_64
 	; switch to long mode
 	lgdt [gdt64]
 
@@ -144,8 +146,11 @@ pmode_start:
 	mov cr4, eax
 
 	mov eax, PM_L4_LOC
+%else
+	mov eax, PM_L2_LOC
+%endif
 	mov cr3, eax
-
+%ifdef __ARCH_X86_64
 	mov ecx, 0xC0000080
 	rdmsr
 	or eax, 0x100
@@ -156,7 +161,7 @@ pmode_start:
 	or eax, 0x80010000
 	mov cr0, eax
 
-%ifidn ARCH,x86_64
+%ifdef __ARCH_X86_64
 	jmp KERN_CS:lmode_start
 
 [bits 64]

@@ -2,7 +2,6 @@
 ; paging.asm
 ;
 
-[bits 64]
 [default rel]
 
 %include "stack.inc"

@@ -6,27 +6,27 @@
 #include "asm.h"
 #include "interrupt.h"
 
-#pragma pack(push, 1)
 typedef struct idt_entry {
 	word  lowaddr;
 	word  selector;
 	byte  ist;
 	byte  flags;
 	word  midaddr;
+#ifdef __ARCH_X86_64
 	dword highaddr;
 	dword zero;
-} idt_entry_t;
+#endif
+} __attribute__((packed)) idt_entry_t;
 
 static idt_entry_t idt[0x100];
 
 const struct {
 	word size;
-	qword entries;
-} idt_ptr = {
+	ulong entries;
+} __attribute__((packed)) idt_ptr = {
 	sizeof idt,
-	(qword)idt
+	(ulong)idt
 };
-#pragma pack(pop)
 
 void setup_ints(void)
 {
@@ -36,19 +36,26 @@ void setup_ints(void)
 	reg_irq(IRQ_LPT1, dummy_int);
 
 	cli();
+
+#ifdef __ARCH_X86_64
 	asm volatile ("lidt idt_ptr(%rip)");
+#else
+	asm volatile ("lidt idt_ptr");
+#endif
 }
 
 void xreg_int(int i, void (*func)(), byte fl, byte ist)
 {
-	qword addr = (qword)func;
+	ulong addr = (ulong)func;
 	idt[i].lowaddr  = addr & 0xffff;
 	idt[i].midaddr  = (addr >> 16) & 0xffff;
-	idt[i].highaddr = addr >> 32;
 	idt[i].selector = KERN_CS;
 	idt[i].flags    = fl;
 	idt[i].ist      = ist;
+#ifdef __ARCH_X86_64
+	idt[i].highaddr = addr >> 32;
 	idt[i].zero     = 0;
+#endif
 }
 
 void reg_int(int i, void (*func)())

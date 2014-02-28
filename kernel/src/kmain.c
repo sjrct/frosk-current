@@ -2,6 +2,7 @@
 // kernel/src/kmain.c
 //
 
+#include "pci.h"
 #include "debug.h"
 #include "common.h"
 #include "paging.h"
@@ -23,6 +24,7 @@ void __attribute__((noreturn)) kmain(void)
 	setup_kernel_memory();
 	setup_pages();
 	setup_ints();
+	pci_detect();
 
 	for (;;) {
 		asm("hlt");

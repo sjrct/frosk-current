@@ -8,6 +8,7 @@ include $(BLDD)/local.mk
 TARGET := kernel.bin
 ENV    := kernel
 CSRCS  := kmain.c \
+          pci.c \
           paging.c \
           stubout.c \
           interrupt.c \

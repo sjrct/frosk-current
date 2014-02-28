@@ -1,0 +1,8 @@
+;//
+;// include/boot/i386/common.both
+;// include/kernel/i386/common.both
+;//
+
+define( LOW_HALF_TOP,  0x80000000 )
+define( HIGH_HALF_BOT, 0x80000000 )
+define( HALF_SIZE,     0x80000000 )

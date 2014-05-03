@@ -127,28 +127,28 @@ qword ata_pio_write(device_t * dev, void * data, qword offset, qword size)
 static int ata_identify(void)
 {
 	uchar v1, v2, p1, p2;
-	
+
 	// check for floating bus
 	v1 = inb(active.base_port + 7);
 	if (v1 == 0xff) return 0;
-	
+
 	// check that is ATA
 	p1 = inb(active.base_port + 2);
 	p2 = inb(active.base_port + 3);
-	
+
 	outb(active.base_port + 2, 0x12); // values are arbitrary
 	outb(active.base_port + 3, 0x34);
 	v1 = inb(active.base_port + 2);
 	v2 = inb(active.base_port + 3);
-	
+
 	outb(active.base_port + 2, p1);
 	outb(active.base_port + 3, p2);
-	
+
 	if (v1 != 0x12 || v2 != 0x34) return 0;
-	
+
 	// identify command
 	// TODO
-	
+
 	return 1;
 }
 */

@@ -29,7 +29,6 @@ typedef struct device {
 
 extern device_t * root_dev;
 extern fs_entry_t * dev_dir;
-extern fs_entry_t * dev_pci_dir;
 
 void init_devs(void);
 

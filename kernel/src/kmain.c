@@ -14,6 +14,7 @@
 #include "memory/pages.h"
 #include "memory/kernel.h"
 
+static void dump_fs(void);
 static void init_bss(void);
 static void init_ro(void);
 
@@ -27,15 +28,38 @@ void __attribute__((noreturn)) kmain(void)
 	setup_ints();
 	setup_fs();
 
+	init_devs();
+
 	char vendor[12];
 	if (has_cpuid()) {
 		cpuid_string(0, vendor);
 		dprintf("CPU Vendor ID: %s\n");
 	}
 
+	dump_fs();
+
 	for (;;) {
 		asm("hlt");
 	}
+}
+
+static void dump_fs(void)
+{
+	void foo(fs_entry_t * x, int t) {
+		int i;
+		x = fs_first(x);
+
+		while (x != NULL) {
+			for (i = 0; i < t*2; i++) dputc(' ');
+			dprintf("%s\n", x->name);
+
+			if (x->type == FS_ENT_DIRECTORY) foo(x, t + 1);
+			x = fs_next(x);
+		}
+	}
+
+	dprintf("/\n");
+	foo(root_dir, 1);
 }
 
 static void init_bss(void)

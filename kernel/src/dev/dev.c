@@ -11,7 +11,6 @@
 
 device_t * root_dev = NULL;
 fs_entry_t * dev_dir;
-fs_entry_t * dev_pci_dir;
 
 void init_devs(void)
 {
@@ -21,7 +20,6 @@ void init_devs(void)
 	bm_edd_t * edd;
 
 	dev_dir = fs_mkvdir("dev", root_dir);
-	dev_pci_dir = fs_mkvdir("pci", dev_dir);
 
 	pci_detect();
 
@@ -34,7 +32,7 @@ void init_devs(void)
 			root_dev = create_ata_pio(in->isa.base, de->atapi.slave << 4);
 		} else {
 			// TODO
-			dprintf("fixme: detected pci boot medium");
+			dprintf("fixme: detected pci boot medium\n");
 		}
 	}
 	else if (leftovers.dd.size >= 0x1E) {
@@ -45,6 +43,7 @@ void init_devs(void)
 		root_dev = create_ata_pio(edd->io_base, edd->flags & 0x10);
 	}
 	else {
-
+		// TODO
+		dprintf("fixme: cannot read jack shit from extended bios disk data\n");
 	}
 }

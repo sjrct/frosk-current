@@ -33,7 +33,7 @@ static void assure(fs_entry_t ** d, dword x, fs_entry_t * par)
 	int i;
 	char str[3] = { '0', 0, 0 };
 
-	if (*d == NULL) {dputc('\n');
+	if (*d == NULL) {
 		for (i = (x >= 0x10); i >= 0; --i, x >>= 4) {
 			if ((x & 0xf) < 10) str[i] = '0' + (x & 0xf);
 			else str[i] = 'a' + (x & 0xf) - 10;
@@ -77,8 +77,6 @@ void pci_detect(void)
 				id = pci_read(pci_addr(bus, dev, fun, 0));
 
 				if ((id & 0xffff) != 0xffff) {
-					dprintf("Found pci device: %d, %d, %d\n", bus, dev, fun);
-
 					assure(&db, bus, dev_pci_dir);
 					assure(&dd, dev, db);
 

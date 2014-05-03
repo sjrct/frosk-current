@@ -7,23 +7,28 @@
 
 #include <types.h>
 
-#define FS_ENT_VIRTUAL  1
-#define FS_FILE_PRESENT 1
-#define FS_FILE_HASNAME 2
-#define FS_FILE_HASDATA 4
+// types
+#define FS_ENT_FILE      1
+#define FS_ENT_DIRECTORY 2
+#define FS_ENT_INDIRECT  3
+
+// flags
+#define FS_ENT_VIRTUAL 1
+#define FS_ENT_PRESENT 2
+#define FS_ENT_HASNAME 4
+#define FS_ENT_HASDATA 8
 
 typedef struct fs_entry {
+	struct fs_entry * left;
+	struct fs_entry * right;
+	struct fs_entry * parent; // not the parent directory
 	char * name;
-	struct fs_entry * left, * right;
-	uint length;
-	byte type;
-	byte flags;
+	uint type, flags;
 
 	union {
 		struct {
-			char * data;
-			uint size;
-			int flags;
+			void * data;
+			ulong size;
 		} file;
 
 		struct {
@@ -31,12 +36,44 @@ typedef struct fs_entry {
 		} directory;
 
 		struct {
-			const char * toname;
+			char * dest;
 		} indirect;
 	} u;
 } fs_entry_t;
 
-fs_entry_t * fs_aquire(const char *);
-void fs_enter(char *, uint, char *, uint);
+extern fs_entry_t * root_dir;
+
+void setup_fs(void);
+
+//
+// Retrieves the pointer to a fs_entry_t with regard to the given entry name
+//
+fs_entry_t * fs_retrieve(const char *, fs_entry_t *);
+
+//
+// Gets the first entry within a given directory
+//
+fs_entry_t * fs_first(fs_entry_t * directory);
+
+//
+// Given an entry in a directory, retieves the next entry in that directory
+// Primarily for use with the fs_first function
+//
+fs_entry_t * fs_next(fs_entry_t * last);
+
+//
+// This function creates an directory with the given name in a given directory
+//
+fs_entry_t * fs_mkdir(const char * name, fs_entry_t * parent);
+
+//
+// Same as fs_mkdir, but the constructed directory is virtual
+//
+fs_entry_t * fs_mkvdir(const char * name, fs_entry_t * parent);
+
+//
+// Creates a virtual file containing the given data
+//
+fs_entry_t * fs_enter(const char * name, void * data, ulong length, fs_entry_t * parent);
 
 #endif

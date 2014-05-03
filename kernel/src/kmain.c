@@ -2,12 +2,15 @@
 // kernel/src/kmain.c
 //
 
-#include "pci.h"
+#include "cpuid.h"
 #include "debug.h"
 #include "common.h"
 #include "paging.h"
 #include "stubout.h"
+#include "leftovers.h"
 #include "interrupt.h"
+#include "fs/fs.h"
+#include "dev/dev.h"
 #include "memory/pages.h"
 #include "memory/kernel.h"
 
@@ -19,12 +22,16 @@ void __attribute__((noreturn)) kmain(void)
 	init_bss();
 	init_ro();
 
-	dputs("frosk kernel entry\n");
-
 	setup_kernel_memory();
 	setup_pages();
 	setup_ints();
-	pci_detect();
+	setup_fs();
+
+	char vendor[12];
+	if (has_cpuid()) {
+		cpuid_string(0, vendor);
+		dprintf("CPU Vendor ID: %s\n");
+	}
 
 	for (;;) {
 		asm("hlt");
@@ -53,7 +60,7 @@ static void init_ro(void)
 	assert(!( (ulong)_ro_start & (PAGE_SIZE-1) ));
 
 	for (; x < _ro_end; x += PAGE_SIZE) {
-		pageto((ulong)x, (ulong)x | 3);
+		pageto((ulong)x, (ulong)x | 1);
 	}
 }
 

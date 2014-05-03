@@ -11,13 +11,24 @@
 	call do_read ; 4
 
 	; check file system mark
-	cld
-	mov cx, 8
-	mov si, fs_mark
-	mov di, RFSMB_LOC
-	repe cmpsb
 	mov word [error_str], erstr_no_filesystem
+	mov di, RFSMB_LOC
+	mov si, fs_mark
+
+	mov eax, [si]
+	cmp eax, [di]
 	jne error16
+
+	mov eax, [si + 4]
+	cmp eax, [di + 4]
+	jne error16
+
+;	cld
+;	mov cx, 1
+;	mov si, fs_mark
+;	mov di, RFSMB_LOC
+;	repe cmpsb
+;	jne error16
 %endmacro
 
 ; locates and loads the kernel

@@ -2,8 +2,6 @@
 ; boot/src/after/graphics.inc
 ;
 
-%ifdef GRAPHICS_MODE
-
 ; get graphics mode info and sets graphics mode
 %macro init_graphics 0
 	mov ax, 0x4f01
@@ -28,6 +26,3 @@ erstr_get_grinfo:
 erstr_set_grmode:
 	db 'Failed to set graphics mode.', 0
 
-%else
-%define init_graphics
-%endif

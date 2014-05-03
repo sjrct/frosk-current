@@ -26,7 +26,7 @@ RM  := rm -f
 FSB := $(TOPD)/util/fsb/fsb
 
 # setup program flags
-GLOB_CFLAGS  = -Wall -D__ARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/
+GLOB_CFLAGS  = -Wall -Wextra -D__ARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/
 GLOB_ASFLAGS = -Wall -D__ARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/ -I$(CD)/src/
 GLOB_LDFLAGS =
 

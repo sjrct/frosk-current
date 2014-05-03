@@ -5,18 +5,24 @@
 #ifndef LEFTOVERS_H
 #define LEFTOVERS_H
 
-#include <common.h>
 #include <types.h>
+#include <common.h>
 
-#pragma pack(push, 1)
 typedef struct {
 	qword base;
 	qword size;
 	dword type;
 	dword attrib;
-} mmr_t;
+} __attribute__((packed)) mmr_t;
 
-typedef union {
+typedef struct bm_edd {
+	word io_base;
+	word ctrl_base;
+	byte flags;
+	// there is more here, but I don't really care
+} __attribute__((packed)) bm_edd_t;
+
+typedef union bm_interface  {
 	struct {
 		word base;
 		word pack[3];
@@ -28,7 +34,18 @@ typedef union {
 		byte function;
 		byte pack[5];
 	} pci;
-} interface_t;
+} __attribute__((packed)) bm_interface_t;
+
+typedef union bm_device {
+	struct {
+		byte slave;
+		byte lun;
+	} atapi;
+
+	byte scsi_lun;
+	qword firewire_guid;
+	qword fibre_wwn;
+} __attribute__((packed)) bm_device_t;
 
 typedef struct {
 	word size;
@@ -48,7 +65,7 @@ typedef struct {
 	qword device_path;
 	byte pack2;
 	byte checksum;
-} disk_data;
+} __attribute__((packed)) disk_data;
 
 // reflected in 'boot/src/leftovers.inc'
 typedef struct {
@@ -60,8 +77,7 @@ typedef struct {
 	word  kernel_size;	
 	disk_data dd;	
 	mmr_t memory_map[];
-} leftovers_t;
-#pragma pack(pop)
+} __attribute__((packed)) leftovers_t;
 
 #define leftovers (*(leftovers_t *)LEFTOVERS_LOC)
 

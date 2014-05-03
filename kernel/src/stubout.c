@@ -6,11 +6,15 @@
 #include "asm.h"
 #include "stubout.h"
 
+#define OUTPUT_TO_SERIAL
+
 void dputc(char c)
 {
 #define DINK 0x75
 
+#ifdef OUTPUT_TO_SERIAL
 	static ushort sport = 0;
+#endif
 	static uchar * debug_cur = (uchar *)0xB8000;//TODO fix magic
 
 	// vga output
@@ -23,12 +27,13 @@ void dputc(char c)
 		debug_cur += 2;
 	}
 
-	// serial output
+#ifdef OUTPUT_TO_SERIAL
 	if (!sport)
 		sport = *(ushort *)0x400;
 
 	while (~inb(sport + 5) & 0x20);
 	outb(sport, c);
+#endif
 
 #undef DINK
 }

@@ -28,6 +28,10 @@ boot_start:
 	mov gs, ax
 	mov sp, 0x7C00 ; temporary
 
+	; set temporary video mode
+	mov ax, 2
+	int 0x10
+
 	; check that drive extensions are present
 	mov ah, 0x41
 	mov bx, 0x55AA
@@ -42,7 +46,7 @@ boot_start:
 	jmp after_break
 
 erstr_no_disk_ext:
-	db 'int 0x13 disk extensions not supported (int 0x13, ah=0x41 failed)', 0
+	db 'disk extensions not supported (int 13h, ah=41h failed)', 0
 erstr_no_load_boot2:
 	db '2nd stage bootloader ignition failure', 0
 
@@ -62,14 +66,13 @@ load_boot2:
 %include "after/a20.inc"
 %include "after/detect.inc"
 %include "after/fs.inc"
-%include "after/graphics.inc"
 
 after_break:
 	; get boot medium information
 	mov ah, 0x48
 	xor esi, esi
 	mov si, leftovers.disk_data
-	mov word [si], 0x42
+	mov dword [si], 0x42
 	int 0x13
 	mov word [error_str], erstr_drive_check
 	jc error16
@@ -78,7 +81,6 @@ after_break:
 	detect_memory
 	load_fs
 	load_kernel
-	init_graphics
 
 	; check for long mode presence
 	mov eax, 0x80000001

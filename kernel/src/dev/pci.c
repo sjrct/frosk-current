@@ -28,6 +28,12 @@ dword pci_read(dword addr)
 	return inl(CONFIG_DATA);
 }
 
+void pci_write(dword addr, dword value)
+{
+	outl(CONFIG_ADDR, addr);
+	outl(CONFIG_DATA, value);
+}
+
 static void assure(fs_entry_t ** d, dword x, fs_entry_t * par)
 {
 	int i;

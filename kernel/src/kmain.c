@@ -50,7 +50,7 @@ static void dump_fs(void)
 		x = fs_first(x);
 
 		while (x != NULL) {
-			for (i = 0; i < t*2; i++) dputc(' ');
+			for (i = 0; i < t*2; i++) dputc(i % 2 || !i  ? ' ' : '|');
 			dprintf("%s\n", x->name);
 
 			if (x->type == FS_ENT_DIRECTORY) foo(x, t + 1);

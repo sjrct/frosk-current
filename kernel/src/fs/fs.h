@@ -46,7 +46,13 @@ extern fs_entry_t * root_dir;
 void setup_fs(void);
 
 //
-// Retrieves the pointer to a fs_entry_t with regard to the given entry name
+// Finds an entry with the given name in a given parent directory. Does not
+//   recurse the directory tree.
+//
+fs_entry_t * fs_resolve(const char *, fs_entry_t *);
+
+//
+// Retrieves the pointer to a fs_entry_t with regard to the given entry path
 //
 fs_entry_t * fs_retrieve(const char *, fs_entry_t *);
 

@@ -52,7 +52,9 @@ static fs_entry_t ** find(const char * name, fs_entry_t * par, fs_entry_t ** lpa
 	int cmp;
 	fs_entry_t ** x;
 
+	assert(par != NULL);
 	assert(par->type == FS_ENT_DIRECTORY);
+
 	x = &par->u.directory.root;
 	*lpar = NULL;
 
@@ -112,10 +114,43 @@ static void decimate(fs_entry_t * x)
 	}
 }
 
-fs_entry_t * fs_retrieve(const char * name, fs_entry_t * par)
+fs_entry_t * fs_resolve(const char * name, fs_entry_t * par)
 {
 	fs_entry_t * lpar;
+	assert(par != NULL);
 	return *find(name, par, &lpar);
+}
+
+// FIXME: don't use memory allocation
+fs_entry_t * fs_retrieve(const char * name0, fs_entry_t * x)
+{
+	char * old, * name, * local;
+
+	old = name = kalloc(strlen(name0) + 1);
+	strcpy(name, name0);
+
+	if (*name == '/') {
+		x = root_dir;
+		name++;
+	}
+
+	assert(x != NULL);
+
+	while (*name != 0) {
+		local = name;
+		while (*name != '/' && *name != 0) ++name;
+
+		if (*name == '/') {
+			*name = 0;
+			name++;
+		}
+
+		assert(x->type == FS_ENT_DIRECTORY);
+		x = fs_resolve(local, x);
+	}
+
+	kfree(old);
+	return x;
 }
 
 static fs_entry_t * leftmost(fs_entry_t * x)

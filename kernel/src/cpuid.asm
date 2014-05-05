@@ -6,6 +6,10 @@
 [section .text]
 
 global has_cpuid
+global cpuid_dword
+global cpuid_string;
+
+%ifdef __ARCH_X86_64
 has_cpuid:
 	pushfq
 	pop rax
@@ -37,3 +41,13 @@ cpuid_string:
 
 	pop rbx
 	ret
+
+%else
+
+	; TODO
+has_cpuid:
+cpuid_string:
+cpuid_dword:
+	xor eax, eax
+	ret
+%endif

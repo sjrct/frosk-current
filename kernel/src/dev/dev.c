@@ -46,4 +46,6 @@ void init_devs(void)
 		// TODO
 		dprintf("fixme: cannot read jack shit from extended bios disk data\n");
 	}
+
+	fs_enter("root", root_dev, sizeof(*root_dev), dev_dir);
 }

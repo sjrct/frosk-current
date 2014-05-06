@@ -47,5 +47,6 @@ void init_devs(void)
 		dprintf("fixme: cannot read jack shit from extended bios disk data\n");
 	}
 
+	assert(root_dev->type == DEVICE_BLOCK);
 	fs_enter("root", root_dev, sizeof(*root_dev), dev_dir);
 }

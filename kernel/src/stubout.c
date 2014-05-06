@@ -1,6 +1,6 @@
-//
-// kernel/src/stubout.c
-//
+/*
+ * kernel/src/stubout.c
+ */
 
 #include <util.h>
 #include "asm.h"
@@ -15,13 +15,13 @@ void dputc(char c)
 #ifdef OUTPUT_TO_SERIAL
 	static ushort sport = 0;
 #endif
-	static uchar * debug_cur = (uchar *)0xB8000;//TODO fix magic
+	static uchar * debug_cur = (uchar *)0xB8000; /* TODO fix magic */
 
-	// vga output
+	/* vga output */
 	if (c == 10) {
 		debug_cur = (uchar *)align((ulong)debug_cur - 0xB8000, 80*2) + 0xB8000;
 	} else {
-		// TODO scroll or wrap
+		/* TODO scroll or wrap */
 		debug_cur[0] = c;
 		debug_cur[1] = DINK;
 		debug_cur += 2;
@@ -54,23 +54,23 @@ void dputu(ulong val, int radix)
 		dputc('0');
 		return;
 	}
-	
+
 	div = 1;
 	tmp = val / radix;
-	
+
 	while (tmp > 0) {
 		tmp /= radix;
 		div *= radix;
 	}
-	
+
 	while (div > 0) {
 		ch = val / div;
 		val %= div;
 		div /= radix;
-		
+
 		if (ch < 10) ch += '0';
 		else ch += 'A' - 10;
-		
+
 		dputc(ch);
 	}
 }
@@ -81,7 +81,7 @@ void dputl(long val, int radix)
 		dputc('-');
 		val = -val;
 	}
-	
+
 	dputu(val, radix);
 }
 
@@ -95,6 +95,9 @@ void dprintf(const char * fmt, ...)
 
 void vdprintf(const char * fmt, va_list ls)
 {
+	void * p;
+	char * s;
+
 	for (; *fmt != 0; fmt++) {
 		if (*fmt == '%') {
 			switch (*++fmt) {
@@ -102,7 +105,9 @@ void vdprintf(const char * fmt, va_list ls)
 				dputc(va_arg(ls, int));
 				break;
 			case 's':
-				dputs(va_arg(ls, char *));
+				s = va_arg(ls, char *);
+				if (s != NULL) dputs(s);
+				else dputs("(null string)");
 				break;
 			case 'd':
 			case 'i':
@@ -126,7 +131,9 @@ void vdprintf(const char * fmt, va_list ls)
 				dputu(va_arg(ls, ulong), 0x10);
 				break;
 			case 'p':
-				dputu((ulong)va_arg(ls, void *), 0x10);
+				p = va_arg(ls, void *);
+				if (p != NULL) dputu((ulong)p, 0x10);
+				else dputs("(null)");
 				break;
 			default:
 				dputc(*fmt);

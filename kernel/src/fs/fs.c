@@ -1,9 +1,11 @@
-//
-// kernel/src/fs/fs.c
-//
+/*
+ * kernel/src/fs/fs.c
+ */
 
 #include <stddef.h>
 #include <string.h>
+#include <common.h>
+#include <fs/node.h>
 #include "fs.h"
 #include "../debug.h"
 #include "../dev/dev.h"
@@ -11,6 +13,13 @@
 
 fs_entry_t * root_dir = NULL;
 
+/* Root File System Metadata Block */
+static fnode_t * rfsmb = (fnode_t *)RFSMB_LOC;
+
+/* The size of the individual nodes; this is relative to page size */
+static long node_size = 0;
+
+/* This function is called in order to create a new entry in a directory */
 static fs_entry_t * create_entry(const char * name, fs_entry_t * lpar, uint type)
 {
 	fs_entry_t * x = kalloc(sizeof(fs_entry_t));
@@ -25,6 +34,7 @@ static fs_entry_t * create_entry(const char * name, fs_entry_t * lpar, uint type
 	x->parent = lpar;
 	x->type   = type;
 	x->flags  = 0;
+	x->node   = NULL;
 
 	switch (type) {
 	case FS_ENT_FILE:
@@ -42,9 +52,80 @@ static fs_entry_t * create_entry(const char * name, fs_entry_t * lpar, uint type
 	return x;
 }
 
+/* This function translates a given fptr into a fnode_t* the fata of which can
+   be found in memory. */
+static fnode_t * resolve_node(fptr p)
+{
+	fnode_t * n;
+	fnode_t * mb = rfsmb;
+
+	if (!p) return NULL;
+
+	for (;;) {
+		n = (fnode_t *)((ulong)mb + (p & 0xff) * node_size);
+		p >>= 8;
+
+		if (!p || n->type != FNODE_BRANCH) break;
+
+		if (!n->u.branch.os_use) {
+			/* TODO load MBs */
+			assert(0);
+		}
+		mb = (fnode_t *)n->u.branch.os_use;
+	}
+
+	return n;
+}
+
 void setup_fs(void)
 {
+	fmeta_header_t * hdr = (fmeta_header_t *)rfsmb;
+	node_size = hdr->page_size / 0x100;
 	root_dir = create_entry(NULL, NULL, FS_ENT_DIRECTORY);
+	root_dir->flags |= FS_ENT_HASDATA;
+	root_dir->node = resolve_node(hdr->root);
+}
+
+static fs_entry_t * insert_entry(const char *, fs_entry_t * par, uint type);
+
+static void assure_dir(fs_entry_t * dir)
+{
+	uint type;
+	fs_entry_t * e;
+	fnode_t * n, * name;
+
+	assert(dir->type == FS_ENT_DIRECTORY);
+
+	/* assures the given directory is present */
+	if (root_dev != NULL && (~dir->flags & FS_ENT_PRESENT)) {
+		assert(dir->flags & FS_ENT_HASDATA);
+		assert(dir->node != NULL);
+		assert(dir->node->type == FNODE_DIRECTORY);
+
+		dir->flags |= FS_ENT_PRESENT;
+		n = resolve_node(dir->node->u.common.data);
+
+		while (n != NULL) {
+			/* Translate node types to entry types */
+			switch (n->type) {
+			case FNODE_FILE:      type = FS_ENT_FILE;      break;
+			case FNODE_DIRECTORY: type = FS_ENT_DIRECTORY; break;
+			case FNODE_INDIRECT:  type = FS_ENT_INDIRECT;  break;
+			default: assert(0);
+			}
+
+			name = resolve_node(n->u.common.name);
+			assert(name->type == FNODE_STRING);
+
+			e = insert_entry(FNODE_STRING(name), dir, type);
+			e->node = n;
+			if (n->type == FNODE_DIRECTORY) {
+				e->flags |= FS_ENT_HASDATA;
+			}
+
+			n = resolve_node(n->u.common.next);
+		}
+	}
 }
 
 static fs_entry_t ** find(const char * name, fs_entry_t * par, fs_entry_t ** lpar)
@@ -58,13 +139,9 @@ static fs_entry_t ** find(const char * name, fs_entry_t * par, fs_entry_t ** lpa
 	x = &par->u.directory.root;
 	*lpar = NULL;
 
-	// assure the parent directory is present
-	if (root_dev != NULL && (~par->flags & FS_ENT_PRESENT)) {
-		// TODO
-		assert(0);
-	}
+	assure_dir(par);
 
-	// look for the file
+	/* look for the file */
 	while (*x != NULL) {
 		cmp = strcmp(name, (*x)->name);
 
@@ -96,9 +173,9 @@ static void destroy(fs_entry_t * x)
 	kfree(x);
 }
 
+/* destroys only enough so that it can be overwritten */
 static void decimate(fs_entry_t * x)
 {
-	// destroys only enough so that it can be overwritten
 	if (x->flags & FS_ENT_HASDATA) {
 		switch (x->type) {
 		case FS_ENT_FILE:
@@ -121,11 +198,11 @@ fs_entry_t * fs_resolve(const char * name, fs_entry_t * par)
 	return *find(name, par, &lpar);
 }
 
-// FIXME: don't use memory allocation
 fs_entry_t * fs_retrieve(const char * name0, fs_entry_t * x)
 {
 	char * old, * name, * local;
 
+	/* FIXME don't use memory allocation */
 	old = name = kalloc(strlen(name0) + 1);
 	strcpy(name, name0);
 
@@ -164,7 +241,7 @@ static fs_entry_t * leftmost(fs_entry_t * x)
 
 fs_entry_t * fs_first(fs_entry_t * x)
 {
-	assert(x->type == FS_ENT_DIRECTORY);
+	assure_dir(x);
 	return leftmost(x->u.directory.root);
 }
 
@@ -178,6 +255,20 @@ fs_entry_t * fs_next(fs_entry_t * x)
 		x = x->parent;
 	}
 	return x->parent;
+}
+
+/* This function wraps to find and create entry to do a proper tree insertion */
+static fs_entry_t * insert_entry(const char * name, fs_entry_t * par, uint type)
+{
+	fs_entry_t * lpar;
+	fs_entry_t ** ent;
+
+	ent = find(name, par, &lpar);
+
+	if (*ent != NULL) decimate(*ent);
+	*ent = create_entry(name, lpar, type);
+
+	return *ent;
 }
 
 fs_entry_t * fs_mkdir(const char * name, fs_entry_t * par)
@@ -199,21 +290,16 @@ fs_entry_t * fs_mkvdir(const char * name, fs_entry_t * par)
 	fs_entry_t * e = fs_mkdir(name, par);
 	e->flags |= FS_ENT_VIRTUAL;
 	return e;
-}
+ }
 
 fs_entry_t * fs_enter(const char * name, void * data, ulong size, fs_entry_t * par)
 {
-	fs_entry_t * lpar;
-	fs_entry_t ** ent;
+	fs_entry_t * ent = insert_entry(name, par, FS_ENT_FILE);
 
-	ent = find(name, par, &lpar);
+	ent->flags |= FS_ENT_VIRTUAL;
+	ent->u.file.data = data;
+	ent->u.file.size = size;
 
-	if (*ent != NULL) decimate(*ent);
-	*ent = create_entry(name, lpar, FS_ENT_FILE);
-
-	(*ent)->flags |= FS_ENT_VIRTUAL | FS_ENT_PRESENT;
-	(*ent)->u.file.data = data;
-	(*ent)->u.file.size = size;
-
-	return *ent;
+	return ent;
 }
+

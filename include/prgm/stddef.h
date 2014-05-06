@@ -1,8 +1,8 @@
-//
-// include/lib/stddef.h
-// include/prgm/stddef.h
-// include/kernel/stddef.h
-//
+/*
+ * include/lib/stddef.h
+ * include/prgm/stddef.h
+ * include/kernel/stddef.h
+ */
 
 #ifndef _STDDEF_H_
 #define _STDDEF_H_

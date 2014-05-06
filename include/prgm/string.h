@@ -1,8 +1,8 @@
-//
-// include/lib/string.h
-// include/prgm/string.h
-// include/kernel/string.h
-//
+/*
+ * include/lib/string.h
+ * include/prgm/string.h
+ * include/kernel/string.h
+ */
 
 #ifndef _STRING_H_
 #define _STRING_H_

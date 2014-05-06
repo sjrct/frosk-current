@@ -1,8 +1,8 @@
-//
-// include/kernel/stdarg.h
-// include/prgm/stdarg.h
-// include/lib/stdarg.h
-//
+/*
+ * include/kernel/stdarg.h
+ * include/prgm/stdarg.h
+ * include/lib/stdarg.h
+ */
 
 #ifndef _STDARG_H_
 #define _STDARG_H_

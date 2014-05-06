@@ -1,7 +1,7 @@
-//
-// include/boot/common.h
-// include/kernel/common.h
-//
+/*
+ * include/boot/common.h
+ * include/kernel/common.h
+ */
 
 #ifndef _COMMON_H_
 #define _COMMON_H_

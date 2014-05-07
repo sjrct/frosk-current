@@ -50,10 +50,10 @@ void setup_fs(void);
 
 /* Finds an entry with the given name in a given parent directory. Does not
    recurse the directory tree. */
-fs_entry_t * fs_resolve(const char *, fs_entry_t *);
+fs_entry_t * fs_resolve(const char * name, fs_entry_t * parent);
 
 /* Retrieves the pointer to a fs_entry_t with regard to the given entry path */
-fs_entry_t * fs_retrieve(const char *, fs_entry_t *);
+fs_entry_t * fs_retrieve(const char * name, fs_entry_t * cd);
 
 /* Gets the first entry within a given directory */
 fs_entry_t * fs_first(fs_entry_t * directory);
@@ -69,7 +69,7 @@ fs_entry_t * fs_mkdir(const char * name, fs_entry_t * parent);
 fs_entry_t * fs_mkvdir(const char * name, fs_entry_t * parent);
 
 /* Creates a virtual file containing the given data */
-fs_entry_t * fs_enter(const char * name, void * data, ulong length, fs_entry_t *);
+fs_entry_t * fs_enter(const char * name, void * data, ulong length, fs_entry_t * parent);
 
 /* Reads from a file */
 qword fs_read(byte * buffer, qword addr, qword size, fs_entry_t * file);

@@ -82,12 +82,14 @@ after_break:
 	load_fs
 	load_kernel
 
+%ifdef __ARCH_X86_64
 	; check for long mode presence
 	mov eax, 0x80000001
 	cpuid
 	test edx, 0x20000000
 	mov word [error_str], erstr_no_long_mode
 	jz error16
+%endif
 
 	; switch to protected mode
 	cli

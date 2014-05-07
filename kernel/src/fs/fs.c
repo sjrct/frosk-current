@@ -80,7 +80,7 @@ static fnode_t * resolve_node(fptr p)
 			pageto(virt, phys | KERN_PAGE_FL);
 			n->u.branch.os_use = virt;
 		}
-		mb = (fnode_t *)n->u.branch.os_use;
+		mb = (fnode_t *)(ulong)n->u.branch.os_use;
 	}
 
 	return n;

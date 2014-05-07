@@ -1,9 +1,11 @@
-//
-// kernel/src/interrupt.h
-//
+/*
+ * kernel/src/interrupt.h
+ */
 
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
+
+#include <types.h>
 
 enum {
 	IRQ_TIMER = 0,
@@ -14,7 +16,7 @@ enum {
 	IRQ_LPT2,
 	IRQ_FLOPPY,
 	IRQ_LPT1,
-	
+
 	IRQ_CMOS,
 	IRQ_LEGACY1,
 	IRQ_LEGACY2,

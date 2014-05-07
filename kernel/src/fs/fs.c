@@ -8,7 +8,9 @@
 #include <fs/node.h>
 #include "fs.h"
 #include "../debug.h"
+#include "../paging.h"
 #include "../dev/dev.h"
+#include "../memory/pages.h"
 #include "../memory/kernel.h"
 
 fs_entry_t * root_dir = NULL;
@@ -58,6 +60,8 @@ static fnode_t * resolve_node(fptr p)
 {
 	fnode_t * n;
 	fnode_t * mb = rfsmb;
+	fmeta_header_t * hdr;
+	ulong virt, phys;
 
 	if (!p) return NULL;
 
@@ -68,8 +72,13 @@ static fnode_t * resolve_node(fptr p)
 		if (!p || n->type != FNODE_BRANCH) break;
 
 		if (!n->u.branch.os_use) {
-			/* TODO load MBs */
-			assert(0);
+			dprintf("warning: must load meta block, I didn't test this code.\n");
+
+			hdr = (fmeta_header_t *)rfsmb;
+			phys = alloc_pgs(hdr->page_size, PHYS_PAGES);
+			virt = alloc_pgs(hdr->page_size, VIRT_PAGES);
+			pageto(virt, phys | KERN_PAGE_FL);
+			n->u.branch.os_use = virt;
 		}
 		mb = (fnode_t *)n->u.branch.os_use;
 	}
@@ -303,3 +312,48 @@ fs_entry_t * fs_enter(const char * name, void * data, ulong size, fs_entry_t * p
 	return ent;
 }
 
+qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
+{
+	qword max;
+	device_t * dev;
+
+	if (e->type != FS_ENT_FILE) return 0;
+	if (e->u.file.size <= addr) return 0;
+
+	max = e->u.file.size - addr;
+	size = max < size ? max : size;
+	if (!size) return 0;
+
+	if (e->flags & FS_ENT_DEVICE) {
+		/* I am hoping there is a better way to handle reading from device files */
+		dev = e->u.file.data;
+		size = dev_read(dev, buf, addr, size);
+	} else {
+		if (e->flags & FS_ENT_PRESENT) {
+			memcpy(buf, e->u.file.data + addr, size);
+		} else {
+			/* TODO read from file not present in memory */
+			assert(0);
+			size = 0;
+		}
+	}
+
+	return size;
+}
+
+qword fs_write(byte * buf, qword addr, qword size, fs_entry_t * e)
+{
+	device_t * dev;
+
+	if (e->type != FS_ENT_FILE) return 0;
+
+	if (e->flags & FS_ENT_DEVICE) {
+		dev = e->u.file.data;
+		return dev_write(dev, buf, addr, size);
+	} else {
+		/* TODO write to regular file */
+		assert(0);
+	}
+
+	return 0;
+}

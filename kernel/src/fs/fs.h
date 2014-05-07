@@ -18,6 +18,7 @@
 #define FS_ENT_PRESENT 2
 #define FS_ENT_HASNAME 4
 #define FS_ENT_HASDATA 8
+#define FS_ENT_DEVICE  16
 
 typedef struct fs_entry {
 	struct fs_entry * left;
@@ -68,6 +69,12 @@ fs_entry_t * fs_mkdir(const char * name, fs_entry_t * parent);
 fs_entry_t * fs_mkvdir(const char * name, fs_entry_t * parent);
 
 /* Creates a virtual file containing the given data */
-fs_entry_t * fs_enter(const char * name, void * data, ulong length, fs_entry_t * parent);
+fs_entry_t * fs_enter(const char * name, void * data, ulong length, fs_entry_t *);
+
+/* Reads from a file */
+qword fs_read(byte * buffer, qword addr, qword size, fs_entry_t * file);
+
+/* Writes to a file */
+qword fs_write(byte * buffer, qword addr, qword size, fs_entry_t * file);
 
 #endif

@@ -8,6 +8,7 @@ include $(BLDD)/local.mk
 TARGET := kernel.bin
 ENV    := kernel
 CSRCS  := kmain.c \
+          fault.c \
           paging.c \
           stubout.c \
           interrupt.c \
@@ -19,6 +20,7 @@ CSRCS  := kmain.c \
           memory/pages.c \
           memory/kernel.c
 ASRCS  := cpuid.asm \
+          fault.asm \
           interrupt.asm
 
 LOCAL_CFLAGS  := -ffreestanding -nostdinc -DDEBUG

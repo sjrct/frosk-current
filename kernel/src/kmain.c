@@ -1,9 +1,10 @@
-//
-// kernel/src/kmain.c
-//
+/*
+ * kernel/src/kmain.c
+ */
 
 #include "cpuid.h"
 #include "debug.h"
+#include "fault.h"
 #include "common.h"
 #include "paging.h"
 #include "stubout.h"
@@ -26,6 +27,7 @@ void __attribute__((noreturn)) kmain(void)
 	setup_kernel_memory();
 	setup_pages();
 	setup_ints();
+	setup_faults();
 	setup_fs();
 
 	init_devs();

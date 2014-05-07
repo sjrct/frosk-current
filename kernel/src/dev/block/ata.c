@@ -1,6 +1,6 @@
-//
-// kernel/src/dev/disk/ata.c
-//
+/*
+ * kernel/src/dev/disk/ata.c
+ */
 
 #include <util.h>
 #include <common.h>
@@ -41,7 +41,7 @@ static void ata_common(ulong lba, uint blcks, uchar cmd, source_t * src)
 
 	outb(src->base_port + 7, cmd);
 
-	// delay ~400ns
+	/* delay ~400ns */
 	io_wait();
 	io_wait();
 	io_wait();
@@ -55,12 +55,12 @@ device_t * create_ata_pio(word bp, byte is)
 
 	src->base_port = bp;
 	src->is_slave  = is;
-	dev->data     = src;
-	dev->enable   = NULL;
-	dev->disable  = NULL;
-	dev->inf.block.read  = ata_pio_read;
-	dev->inf.block.write = ata_pio_write;
-	dev->inf.block.block_size = SECTOR_SIZE;
+	dev->data       = src;
+	dev->enable     = NULL;
+	dev->disable    = NULL;
+	dev->read       = ata_pio_read;
+	dev->write      = ata_pio_write;
+	dev->block_size = SECTOR_SIZE;
 
 	return dev;
 }
@@ -122,7 +122,7 @@ qword ata_pio_write(device_t * dev, void * data, qword offset, qword size)
 	return size;
 }
 
-// Maybe actually use this function ?
+/* Maybe actually use this function ? */
 /*
 static int ata_identify(void)
 {

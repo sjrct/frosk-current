@@ -31,13 +31,13 @@ gpf:
 dbz:
 	push dbz_str
 	call abort
-	pop rax
+	pop eax
 	iret
 
 gpf:
 	push gpf_str
 	call abort
-	pop rax
+	pop eax
 	iret
 
 %endif

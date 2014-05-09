@@ -8,6 +8,7 @@ include $(BLDD)/local.mk
 TARGET := kernel.bin
 ENV    := kernel
 CSRCS  := kmain.c \
+          exec.c \
           fault.c \
           paging.c \
           stubout.c \
@@ -24,6 +25,7 @@ CSRCS  := kmain.c \
 ASRCS  := lock.asm \
           cpuid.asm \
           fault.asm \
+          syscall.asm \
           interrupt.asm \
           scheduler.asm
 

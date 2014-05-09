@@ -2,12 +2,14 @@
  * kernel/src/kmain.c
  */
 
+#include "exec.h"
 #include "cpuid.h"
 #include "debug.h"
 #include "fault.h"
 #include "common.h"
 #include "paging.h"
 #include "stubout.h"
+#include "syscall.h"
 #include "leftovers.h"
 #include "interrupt.h"
 #include "fs/fs.h"
@@ -15,8 +17,6 @@
 #include "memory/pages.h"
 #include "memory/kernel.h"
 
-static void dump_fs(void);
-static void start(void);
 static void init_bss(void);
 static void init_ro(void);
 
@@ -31,8 +31,10 @@ void __attribute__((noreturn)) kmain(void)
 	setup_ints();
 	setup_faults();
 	setup_fs();
+	setup_syscalls();
 
 	init_devs();
+
 
 	char vendor[12];
 	if (has_cpuid()) {
@@ -40,48 +42,12 @@ void __attribute__((noreturn)) kmain(void)
 		dprintf("CPU Vendor ID: %s\n");
 	}
 
-//	dump_fs();
-	start();
+	dprintf("start = %p\n", fexec("/prgm/start", 0, NULL, NULL));
+	start_scheduler();
 
 	for (;;) {
 		asm("hlt");
 	}
-}
-
-static void start(void)
-{
-	byte * buf;
-	fs_entry_t * e;
-	ulong size;
-
-	e = fs_retrieve("/prgm/start", NULL);
-	size = fs_size(e);
-	buf = kalloc(size);
-	dprintf("fs_read() = %X\n", fs_read(buf, 0, size, e));
-	buf[size] = 0;
-
-	dprintf("\n%s", buf);
-
-	kfree(buf);
-}
-
-static void dump_fs(void)
-{
-	void foo(fs_entry_t * x, int t) {
-		int i;
-		x = fs_first(x);
-
-		while (x != NULL) {
-			for (i = 0; i < t*2; i++) dputc(i % 2 || !i  ? ' ' : '|');
-			dprintf("%s\n", x->name);
-
-			if (x->type == FS_ENT_DIRECTORY) foo(x, t + 1);
-			x = fs_next(x);
-		}
-	}
-
-	dprintf("/\n");
-	foo(root_dir, 1);
 }
 
 static void init_bss(void)

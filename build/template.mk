@@ -2,6 +2,12 @@
 # util/template.mk
 #
 
+ENV_CFLAGS  :=
+ENV_ASFLAGS :=
+ENV_LDFLAGS :=
+
+-include $(BLDD)/$(ENV).mk
+
 TARGET := $(CD)/$(TARGET)
 COBJS  := $(foreach X,$(CSRCS),$(CD)/obj/$X.o)
 CDEPS  := $(foreach X,$(CSRCS),$(CD)/dep/$X.d)

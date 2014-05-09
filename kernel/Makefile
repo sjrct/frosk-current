@@ -12,16 +12,20 @@ CSRCS  := kmain.c \
           paging.c \
           stubout.c \
           interrupt.c \
+          scheduler.c \
           fs/fs.c \
           dev/dev.c \
           dev/pci.c \
           dev/block/ata.c \
           cstd/string.c \
           memory/pages.c \
-          memory/kernel.c
-ASRCS  := cpuid.asm \
+          memory/kernel.c \
+          memory/region.c
+ASRCS  := lock.asm \
+          cpuid.asm \
           fault.asm \
-          interrupt.asm
+          interrupt.asm \
+          scheduler.asm
 
 LOCAL_CFLAGS  := -ffreestanding -nostdinc -DDEBUG
 LOCAL_ASFLAGS :=

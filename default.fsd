@@ -3,3 +3,7 @@
 #
 
 f:[name = kernel.bin, actual = kernel/kernel.bin]
+
+d:[name = prgm, contents = {
+	f:[name = start, actual = README.md]
+}]

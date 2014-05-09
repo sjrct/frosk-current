@@ -16,11 +16,13 @@
 #include "memory/kernel.h"
 
 static void dump_fs(void);
+static void start(void);
 static void init_bss(void);
 static void init_ro(void);
 
 void __attribute__((noreturn)) kmain(void)
 {
+
 	init_bss();
 	init_ro();
 
@@ -38,11 +40,29 @@ void __attribute__((noreturn)) kmain(void)
 		dprintf("CPU Vendor ID: %s\n");
 	}
 
-	dump_fs();
+//	dump_fs();
+	start();
 
 	for (;;) {
 		asm("hlt");
 	}
+}
+
+static void start(void)
+{
+	byte * buf;
+	fs_entry_t * e;
+	ulong size;
+
+	e = fs_retrieve("/prgm/start", NULL);
+	size = fs_size(e);
+	buf = kalloc(size);
+	dprintf("fs_read() = %X\n", fs_read(buf, 0, size, e));
+	buf[size] = 0;
+
+	dprintf("\n%s", buf);
+
+	kfree(buf);
 }
 
 static void dump_fs(void)

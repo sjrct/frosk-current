@@ -66,6 +66,7 @@ load_boot2:
 %include "after/a20.inc"
 %include "after/detect.inc"
 %include "after/fs.inc"
+%include "after/graphics.inc"
 
 after_break:
 	; get boot medium information
@@ -81,6 +82,7 @@ after_break:
 	detect_memory
 	load_fs
 	load_kernel
+	init_graphics
 
 %ifdef __ARCH_X86_64
 	; check for long mode presence

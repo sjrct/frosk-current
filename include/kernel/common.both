@@ -28,7 +28,8 @@ define( USER_DS, 0x20 )
 define( TSS_SEL, 0x28 )
 
 ;// 1024x768x256
-define( GRAPHICS_MODE, 0x4118 )
+;//define( GRAPHICS_MODE, 0x4118 )
+define( GRAPHICS_MODE, 0x3 )
 
 define( IRQ0, 0x20 )
 define( SYSCALL_INT, 0x40 )

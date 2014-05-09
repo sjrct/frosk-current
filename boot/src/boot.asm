@@ -14,11 +14,6 @@
 
 	jmp 0:boot_start
 boot_start:
-	; save regs from bios
-	mov [leftovers.partition_ds], ds
-	mov [leftovers.partition_si], si
-	mov [leftovers.drive_letter], dl
-
 	; Setup segments and stack
 	xor ax, ax
 	mov ss, ax
@@ -27,6 +22,11 @@ boot_start:
 	mov fs, ax
 	mov gs, ax
 	mov sp, 0x7C00 ; temporary
+
+	; save regs from bios
+	mov [leftovers.partition_ds], ds
+	mov [leftovers.partition_si], si
+	mov [leftovers.drive_letter], dl
 
 	; set temporary video mode
 	mov ax, 2

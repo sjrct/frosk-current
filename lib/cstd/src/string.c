@@ -19,7 +19,7 @@ char * strcpy(char * d, const char * s)
 		d++;
 		s++;
 	}
-	
+
 	return d;
 }
 
@@ -29,11 +29,11 @@ int strcmp(const char * a, const char * b)
 		if (*a != *b) {
 			return ((*a > *b) << 1) - 1;
 		}
-	
+
 		a++;
 		b++;
 	}
-	
+
 	return *a < *b ? -1 : *a > *b;
 }
 
@@ -45,10 +45,10 @@ int strncmp(const char * a, const char * b, size_t size)
 		if (a[i] != b[i]) {
 			return ((a[i] > b[i]) << 1) - 1;
 		}
-		
+
 		if (*a == 0) break;
 	}
-	
+
 	return 0;
 }
 
@@ -61,7 +61,7 @@ void * memcpy(void * vdest, const void * vsrc, size_t size)
 	for (i = 0; i < size; i++) {
 		dest[i] = src[i];
 	}
-	
+
 	return vdest;
 }
 
@@ -76,6 +76,6 @@ int memcmp(const void * va, const void * vb, size_t size)
 			return ((a[i] > b[i]) << 1) - 1;
 		}
 	}
-	
+
 	return 0;
 }

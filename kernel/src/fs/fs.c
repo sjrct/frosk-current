@@ -13,6 +13,8 @@
 #include "../memory/pages.h"
 #include "../memory/kernel.h"
 
+#define FS_SIZE_UNKNOWN ((ulong)-1)
+
 fs_entry_t * root_dir = NULL;
 
 /* Root File System Metadata Block */
@@ -78,6 +80,9 @@ static fnode_t * resolve_node(fptr p)
 			phys = alloc_pgs(hdr->page_size, PHYS_PAGES);
 			virt = alloc_pgs(hdr->page_size, VIRT_PAGES);
 			pageto(virt, phys | KERN_PAGE_FL);
+
+			dev_read(root_dev, (byte *)virt, n->u.branch.lba1 * hdr->page_size, hdr->page_size);
+
 			n->u.branch.os_use = virt;
 		}
 		mb = (fnode_t *)(ulong)n->u.branch.os_use;
@@ -128,8 +133,13 @@ static void assure_dir(fs_entry_t * dir)
 
 			e = insert_entry(FNODE_STRING(name), dir, type);
 			e->node = n;
-			if (n->type == FNODE_DIRECTORY) {
+			switch (n->type) {
+			case FNODE_FILE:
+				e->u.file.size = FS_SIZE_UNKNOWN;
+				break;
+			case FNODE_DIRECTORY:
 				e->flags |= FS_ENT_HASDATA;
+				break;
 			}
 
 			n = resolve_node(n->u.common.next);
@@ -312,15 +322,41 @@ fs_entry_t * fs_enter(const char * name, void * data, ulong size, fs_entry_t * p
 	return ent;
 }
 
+/* Returns the size of the file */
+ulong fs_size(fs_entry_t * e)
+{
+	fnode_t * n;
+
+	assert(e->type == FS_ENT_FILE);
+
+	if (e->u.file.size == FS_SIZE_UNKNOWN) {
+		n = e->node;
+		assert(n != NULL);
+		n = resolve_node(n->u.common.data);
+		e->u.file.size = 0;
+
+		while (n != NULL) {
+			assert(n->type == FNODE_BLOCK);
+
+			e->u.file.size += n->u.block.size;
+			n = resolve_node(n->u.block.next);
+		}
+	}
+
+	return e->u.file.size;
+}
+
 qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
 {
-	qword max;
+	qword max, rem, a, s;
+	fnode_t * n;
 	device_t * dev;
+	fmeta_header_t * hdr;
 
 	if (e->type != FS_ENT_FILE) return 0;
 	if (e->u.file.size <= addr) return 0;
 
-	max = e->u.file.size - addr;
+	max = fs_size(e) - addr;
 	size = max < size ? max : size;
 	if (!size) return 0;
 
@@ -332,15 +368,44 @@ qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
 		if (e->flags & FS_ENT_PRESENT) {
 			memcpy(buf, e->u.file.data + addr, size);
 		} else {
-			/* TODO read from file not present in memory */
-			assert(0);
-			size = 0;
+			assert(e->node != NULL);
+
+			rem = size;
+			n = resolve_node(e->node->u.common.data);
+			hdr = (fmeta_header_t *)rfsmb;
+
+			while (rem && n != NULL) {
+				assert(n->type == FNODE_BLOCK);
+
+				if (addr >= n->u.block.size) {
+					addr -= n->u.block.size;
+				} else {
+					a = n->u.block.lba * hdr->page_size + addr;
+					addr = 0;
+
+					if (n->u.block.size > rem) {
+						s = rem;
+						rem = 0;
+					} else {
+						s = n->u.block.size;
+						rem -= s;
+					}
+
+					do_assert(dev_read(root_dev, buf, a, s) == s);
+					n = resolve_node(n->u.block.next);
+					buf += s;
+				}
+			}
+
+			size -= rem;
 		}
 	}
 
 	return size;
 }
 
+/* TODO restore when dev_write implemented */
+/*
 qword fs_write(byte * buf, qword addr, qword size, fs_entry_t * e)
 {
 	device_t * dev;
@@ -351,9 +416,10 @@ qword fs_write(byte * buf, qword addr, qword size, fs_entry_t * e)
 		dev = e->u.file.data;
 		return dev_write(dev, buf, addr, size);
 	} else {
-		/* TODO write to regular file */
+		// TODO write to regular file
 		assert(0);
 	}
 
 	return 0;
 }
+*/

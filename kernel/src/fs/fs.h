@@ -71,6 +71,9 @@ fs_entry_t * fs_mkvdir(const char * name, fs_entry_t * parent);
 /* Creates a virtual file containing the given data */
 fs_entry_t * fs_enter(const char * name, void * data, ulong length, fs_entry_t * parent);
 
+/* Gets the literial size of the file */
+ulong fs_size(fs_entry_t * file);
+
 /* Reads from a file */
 qword fs_read(byte * buffer, qword addr, qword size, fs_entry_t * file);
 

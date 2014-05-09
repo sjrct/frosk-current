@@ -93,6 +93,7 @@ qword ata_pio_read(device_t * dev, void * data, qword offset, qword size)
 	uint i, j;
 	source_t * src = dev->data;
 
+	if (!size) return 0;
 	ata_common(offset, size, READ_COMMAND, src);
 
 	for (i = 0; i < size; i++) {
@@ -110,6 +111,7 @@ qword ata_pio_write(device_t * dev, void * data, qword offset, qword size)
 	uint i, j;
 	source_t * src = dev->data;
 
+	if (!size) return 0;
 	ata_common(offset, size, WRITE_COMMAND, src);
 
 	for (i = 0; i < size; i++) {

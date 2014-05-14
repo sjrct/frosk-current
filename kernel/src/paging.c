@@ -87,10 +87,12 @@ ulong getpage(ulong virt)
 #endif
 	return get_entry(virt, PG_SWP_LOC, 12);
 }
-/*
+
 void page_fault(ulong error, ulong cr2)
 {
-	region * heap;
+	dputs("asdfaskdflaj\n");
+	for(;;);
+	/*region * heap;
 	region * stack;
 	kprintf("cr2 = %p\n", cr2);
 
@@ -120,5 +122,5 @@ void page_fault(ulong error, ulong cr2)
 			assure(stack, cr2, 7);
 		}
 	}
-}
 */
+}

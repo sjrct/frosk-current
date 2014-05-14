@@ -1,0 +1,6 @@
+cpuid: x86_64=1
+cpu: reset_on_triple_fault=0
+ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+ata0-master: type=disk, path="./frosk.img", mode=flat, cylinders=1, heads=4, spt=15
+boot: disk
+display_library: x

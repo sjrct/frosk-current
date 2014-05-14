@@ -7,8 +7,8 @@ include $(BLDD)/local.mk
 
 TARGET := $(CD)/frosk.img
 
-SUB    := util boot kernel prgm
-SUBTR  := util/util.fake boot/boot.bin kernel/kernel.bin prgm/prgm.fake
+SUB    := util boot kernel lib prgm
+SUBTR  := util/util.fake boot/boot.bin kernel/kernel.bin lib/lib.fake prgm/prgm.fake
 
 SUBMK  := $(foreach S,$(SUB),$(CD)/$S/Makefile)
 SUBTR  := $(foreach S,$(SUBTR),$(CD)/$S)

@@ -1,12 +1,13 @@
 #
-# local.mk
+# build/local.mk
 #
 # This file is always included in primary makefiles, after estab.mk
 #
 
 # reset local variables
-CSRCS  :=
-ASRCS  :=
+CSRCS :=
+ASRCS :=
+LIBS  :=
 
 LOCAL_CFLAGS  :=
 LOCAL_ASFLAGS :=

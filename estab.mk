@@ -23,6 +23,7 @@ CC  := gcc
 LD  := gcc
 AS  := nasm
 RM  := rm -f
+AR  := ar rcu
 FSB := $(TOPD)/util/fsb/fsb
 
 # setup program flags

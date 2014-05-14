@@ -1,5 +1,5 @@
 ;
-; paging.asm
+; kernel/src/paging.asm
 ;
 
 [default rel]

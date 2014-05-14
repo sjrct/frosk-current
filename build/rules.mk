@@ -1,5 +1,5 @@
 #
-# rules.mk
+# build/rules.mk
 #
 # Contains special rules to build. Should be included after WHAT_TO_BUILD and
 #  WHAT_TO_CLEAN are set.

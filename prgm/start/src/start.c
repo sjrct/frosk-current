@@ -1,3 +1,5 @@
+#include <frosk.h>
+
 int main() {
 	for (;;) {
 	}

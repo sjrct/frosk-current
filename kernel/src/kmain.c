@@ -2,6 +2,7 @@
  * kernel/src/kmain.c
  */
 
+#include "tss.h"
 #include "exec.h"
 #include "cpuid.h"
 #include "debug.h"
@@ -29,12 +30,13 @@ void __attribute__((noreturn)) kmain(void)
 	setup_kernel_memory();
 	setup_pages();
 	setup_ints();
+	setup_tss();
+	setup_paging();
 	setup_faults();
 	setup_fs();
 	setup_syscalls();
 
 	init_devs();
-
 
 	char vendor[12];
 	if (has_cpuid()) {
@@ -45,8 +47,9 @@ void __attribute__((noreturn)) kmain(void)
 	dprintf("start = %p\n", fexec("/prgm/start", 0, NULL, NULL));
 	start_scheduler();
 
+	asm volatile ("sti");
 	for (;;) {
-		asm("hlt");
+		asm volatile ("hlt");
 	}
 }
 

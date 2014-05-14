@@ -22,9 +22,11 @@ CSRCS  := kmain.c \
           memory/pages.c \
           memory/kernel.c \
           memory/region.c
-ASRCS  := lock.asm \
+ASRCS  := tss.asm \
+          lock.asm \
           cpuid.asm \
           fault.asm \
+          paging.asm \
           syscall.asm \
           interrupt.asm \
           scheduler.asm

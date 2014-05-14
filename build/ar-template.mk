@@ -1,26 +1,23 @@
 #
-# build/template.mk
+# build/ar-template.mk
 #
 
 ENV_CFLAGS  :=
 ENV_ASFLAGS :=
-ENV_LDFLAGS :=
 
 -include $(BLDD)/$(ENV).mk
 
-TARGET := $(CD)/$(TARGET)
+TARGET := $(CD)/$(TARGET).a
 COBJS  := $(foreach X,$(CSRCS),$(CD)/obj/$X.o)
 CDEPS  := $(foreach X,$(CSRCS),$(CD)/dep/$X.d)
 CSRCS  := $(addprefix $(CD)/src/,$(CSRCS))
 AOBJS  := $(foreach X,$(ASRCS),$(CD)/obj/$X.o)
-ADEPS  := $(foreach X,$(ASRCS),$(CD)/dep/$X.d)
+ADEPS  := $(foreach X,$(ASRCS),S(CD)/dep/$X.d)
 ASRCS  := $(addprefix $(CD)/src/,$(ASRCS))
-
-LIBS := $(foreach X,$(LIBS),$(TOPD)/lib/$X/$X.a)
 
 define block
 $(TARGET): $(COBJS) $(AOBJS)
-	$$(call V1,$(LD) $(LDFLAGS) -o $$@ $$^ $(LIBS),LD $$@)
+	$$(call V1,$(AR) -o $$@ $$^,AR $$@)
 
 $(CD)/obj/%.c.o: $(CD)/src/%.c
 	$(V3) mkdir -p $$(dir $$@)

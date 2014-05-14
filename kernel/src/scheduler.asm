@@ -96,7 +96,6 @@ timer_irq:
 	mov rax, .return_here
 	push rax
 
-
 	; change old thread status
 	xor rdi, rdi
 	mov rax, [cur_thrd]
@@ -110,7 +109,7 @@ timer_irq:
 	mov [cur_thrd], rbx
 
 	; swap in stack
-	mov rsp, 0x70000 ; there might be a better solution to this
+	mov rsp, 0x70000 ; FIXME there might be a better solution to this
 	mov rsi, [rbx + thread.stack]
 	mov rdx, 0x7
 	call swapflop

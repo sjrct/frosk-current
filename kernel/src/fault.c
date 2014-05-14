@@ -18,9 +18,9 @@ void setup_faults(void)
 	reg_int(GPF, gpf);
 }
 
-void abort(const char * str)
+void abort(const char * str, ulong num)
 {
-	dputs(str);
+	dprintf(str, num);
 
 	asm volatile ("cli");
 	for (;;) {

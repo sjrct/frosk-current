@@ -1,7 +1,7 @@
-//
-// lib/cstd/src/string.c
-// kernel/src/cstd/string.c
-//
+/*
+ * lib/cstd/src/string.c
+ * kernel/src/cstd/string.c
+ */
 
 #include <string.h>
 
@@ -19,7 +19,7 @@ char * strcpy(char * d, const char * s)
 		d++;
 		s++;
 	}
-
+	*d = 0;
 	return d;
 }
 

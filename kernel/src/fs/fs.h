@@ -7,6 +7,7 @@
 
 #include <types.h>
 #include <fs/node.h>
+#include "../lock.h"
 
 /* types */
 #define FS_ENT_FILE      1
@@ -14,11 +15,12 @@
 #define FS_ENT_INDIRECT  3
 
 /* flags */
-#define FS_ENT_VIRTUAL 1
-#define FS_ENT_PRESENT 2
-#define FS_ENT_HASNAME 4
-#define FS_ENT_HASDATA 8
-#define FS_ENT_DEVICE  16
+#define FS_ENT_VIRTUAL 0x01
+#define FS_ENT_PRESENT 0x02
+#define FS_ENT_HASNAME 0x04
+#define FS_ENT_HASDATA 0x08
+#define FS_ENT_HOOKED  0x10
+#define FS_ENT_STATIC  0x20
 
 typedef struct fs_entry {
 	struct fs_entry * left;
@@ -27,11 +29,14 @@ typedef struct fs_entry {
 	char * name;
 	fnode_t * node;
 	uint type, flags;
+	lock_t lock;
 
 	union {
 		struct {
 			void * data;
 			ulong size;
+			qword (* read_hook) (byte *, qword, qword, void *);
+			qword (* write_hook)(byte *, qword, qword, void *);
 		} file;
 
 		struct {

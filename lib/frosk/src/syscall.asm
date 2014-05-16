@@ -17,3 +17,4 @@ SYSCALL 0, rdi
 SYSCALL 1, rsi
 SYSCALL 2, rdx
 SYSCALL 3, rcx
+SYSCALL 4, r8

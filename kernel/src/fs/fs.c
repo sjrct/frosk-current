@@ -39,6 +39,7 @@ static fs_entry_t * create_entry(const char * name, fs_entry_t * lpar, uint type
 	x->type   = type;
 	x->flags  = 0;
 	x->node   = NULL;
+	x->lock   = UNLOCKED;
 
 	switch (type) {
 	case FS_ENT_FILE:
@@ -56,7 +57,7 @@ static fs_entry_t * create_entry(const char * name, fs_entry_t * lpar, uint type
 	return x;
 }
 
-/* This function translates a given fptr into a fnode_t* the fata of which can
+/* This function translates a given fptr into a fnode_t* the data of which can
    be found in memory. */
 static fnode_t * resolve_node(fptr p)
 {
@@ -350,7 +351,6 @@ qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
 {
 	qword max, rem, a, s;
 	fnode_t * n;
-	device_t * dev;
 	fmeta_header_t * hdr;
 
 	if (e->type != FS_ENT_FILE) return 0;
@@ -360,10 +360,8 @@ qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
 	size = max < size ? max : size;
 	if (!size) return 0;
 
-	if (e->flags & FS_ENT_DEVICE) {
-		/* I am hoping there is a better way to handle reading from device files */
-		dev = e->u.file.data;
-		size = dev_read(dev, buf, addr, size);
+	if (e->flags & FS_ENT_HOOKED) {
+		size = e->u.file.read_hook(buf, addr, size, e->u.file.data);
 	} else {
 		if (e->flags & FS_ENT_PRESENT) {
 			memcpy(buf, e->u.file.data + addr, size);
@@ -404,22 +402,25 @@ qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
 	return size;
 }
 
-/* TODO restore when dev_write implemented */
-/*
 qword fs_write(byte * buf, qword addr, qword size, fs_entry_t * e)
 {
-	device_t * dev;
-
 	if (e->type != FS_ENT_FILE) return 0;
 
-	if (e->flags & FS_ENT_DEVICE) {
-		dev = e->u.file.data;
-		return dev_write(dev, buf, addr, size);
+	if (e->flags & FS_ENT_HOOKED) {
+		return e->u.file.write_hook(buf, addr, size, e->u.file.data);
 	} else {
-		// TODO write to regular file
-		assert(0);
+		if (e->flags & FS_ENT_VIRTUAL) {
+			if (addr + size > e->u.file.size) {
+				/* TODO possibly expand file */
+				assert(0);
+			} else {
+				memcpy(e->u.file.data + addr, buf, size);
+			}
+		} else {
+			/* TODO write to regular file */
+			assert(0);
+		}
 	}
 
 	return 0;
 }
-*/

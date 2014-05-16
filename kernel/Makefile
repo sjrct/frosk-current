@@ -15,9 +15,11 @@ CSRCS  := kmain.c \
           interrupt.c \
           scheduler.c \
           fs/fs.c \
+          fs/pub.c \
           dev/dev.c \
           dev/pci.c \
           dev/block/ata.c \
+          dev/video/video.c \
           cstd/string.c \
           memory/pages.c \
           memory/kernel.c \

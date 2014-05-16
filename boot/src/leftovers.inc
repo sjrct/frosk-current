@@ -12,6 +12,7 @@ leftovers:
 	.mm_size:       equ LEFTOVERS_LOC + 6
 	.kernel_size:   equ LEFTOVERS_LOC + 8
 	.disk_data:     equ LEFTOVERS_LOC + 0xA
-	.memory_map:    equ LEFTOVERS_LOC + 0x4C
+	.vm_info:       equ LEFTOVERS_LOC + 0x4C
+	.memory_map:    equ LEFTOVERS_LOC + 0x14C
 
 

@@ -6,6 +6,7 @@
 #include "dev.h"
 #include "pci.h"
 #include "block/ata.h"
+#include "video/video.h"
 #include "../debug.h"
 #include "../leftovers.h"
 #include "../memory/kernel.h"
@@ -23,6 +24,7 @@ void init_devs(void)
 	dev_dir = fs_mkvdir("dev", root_dir);
 
 	pci_detect();
+	video_detect();
 
 	/* attempt to detect boot medium from disk drive parameters from BIOS */
 	if (leftovers.dd.size >= 0x42 && leftovers.dd.sig == 0xBEDD) {

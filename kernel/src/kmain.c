@@ -44,7 +44,7 @@ void __attribute__((noreturn)) kmain(void)
 		dprintf("CPU Vendor ID: %s\n");
 	}
 
-	dprintf("start = %p\n", fexec("/prgm/start", 0, NULL, NULL));
+	fexec("/prgm/start", 0, NULL, NULL);
 	start_scheduler();
 
 	asm volatile ("sti");

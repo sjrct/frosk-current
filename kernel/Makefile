@@ -18,6 +18,7 @@ CSRCS  := kmain.c \
           fs/pub.c \
           dev/dev.c \
           dev/pci.c \
+          dev/ps2.c \
           dev/block/ata.c \
           dev/video/video.c \
           cstd/string.c \
@@ -31,9 +32,10 @@ ASRCS  := tss.asm \
           paging.asm \
           syscall.asm \
           interrupt.asm \
-          scheduler.asm
+          scheduler.asm \
+          dev/ps2.asm
 
-LOCAL_CFLAGS  := -ffreestanding -nostdinc -DDEBUG
+LOCAL_CFLAGS  := -ffreestanding -nostdinc -DDEBUG -Wno-unused-parameter
 LOCAL_ASFLAGS :=
 LOCAL_LDFLAGS := -ffreestanding -nostdlib -T$(CD)/kernel.ld
 

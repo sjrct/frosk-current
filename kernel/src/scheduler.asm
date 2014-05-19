@@ -125,7 +125,6 @@ timer_irq:
 	out 0x40, al
 	out 0x40, al
 
-	;mov qword [rsp], .return_here
 	or qword [rsp + 0x10], 0x200
 	iretq
 .return_here:

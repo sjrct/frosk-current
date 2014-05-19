@@ -5,6 +5,7 @@
 #include <string.h>
 #include "dev.h"
 #include "pci.h"
+#include "ps2.h"
 #include "block/ata.h"
 #include "video/video.h"
 #include "../debug.h"
@@ -25,6 +26,7 @@ void init_devs(void)
 
 	pci_detect();
 	video_detect();
+	init_ps2_kb();
 
 	/* attempt to detect boot medium from disk drive parameters from BIOS */
 	if (leftovers.dd.size >= 0x42 && leftovers.dd.sig == 0xBEDD) {

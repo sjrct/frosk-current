@@ -361,6 +361,7 @@ qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
 	if (!size) return 0;
 
 	if (e->flags & FS_ENT_HOOKED) {
+		if (e->u.file.read_hook == NULL) return 0;
 		size = e->u.file.read_hook(buf, addr, size, e->u.file.data);
 	} else {
 		if (e->flags & FS_ENT_PRESENT) {
@@ -407,6 +408,7 @@ qword fs_write(byte * buf, qword addr, qword size, fs_entry_t * e)
 	if (e->type != FS_ENT_FILE) return 0;
 
 	if (e->flags & FS_ENT_HOOKED) {
+		if (e->u.file.write_hook == NULL) return 0;
 		return e->u.file.write_hook(buf, addr, size, e->u.file.data);
 	} else {
 		if (e->flags & FS_ENT_VIRTUAL) {

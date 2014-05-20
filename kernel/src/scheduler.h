@@ -48,8 +48,8 @@ struct thread {
 #pragma pack(pop)
 
 void start_scheduler(void);
-process_t * schedule(const byte *, ulong, ulong, ulong, int, const char **);
-thread_t * spawn(process_t *, ulong, int, const qword *);
+process_t * spawn(const byte *, ulong, ulong, ulong, int, const char **);
+thread_t * schedule(process_t *, ulong, int, const qword *);
 
 extern process_t * head_proc;
 extern thread_t * head_thrd;

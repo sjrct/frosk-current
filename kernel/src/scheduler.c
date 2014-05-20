@@ -25,7 +25,7 @@ void start_scheduler(void)
 	outb(0x40, 0x00);
 }
 
-process_t * schedule(const byte * data, ulong csz, ulong bsz, ulong entry, int argc, const char ** argv)
+process_t * spawn(const byte * data, ulong csz, ulong bsz, ulong entry, int argc, const char ** argv)
 {
 	extern byte preamble_code;
 	extern byte preamble_size;
@@ -102,11 +102,11 @@ process_t * schedule(const byte * data, ulong csz, ulong bsz, ulong entry, int a
 	}
 	unlock(&scheduler_lock);
 
-	spawn(p, preamble, countof(extv), extv);
+	schedule(p, preamble, countof(extv), extv);
 	return p;
 }
 
-thread_t * spawn(process_t * par, ulong start, int extz, const qword * extv)
+thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv)
 {
 	int i;
 	qword tvirt;

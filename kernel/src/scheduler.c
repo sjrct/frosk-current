@@ -44,7 +44,7 @@ process_t * schedule(const byte * data, ulong csz, ulong bsz, ulong entry, int a
 
 	size  = align(size, sizeof(char *));
 	size += argc * sizeof(char *);
-	size  = align(size, PAGE_SIZE) + 2*PAGE_SIZE; // TODO actually calc argv size
+	size  = align(size, PAGE_SIZE) + 2*PAGE_SIZE; /* TODO actually calc argv size */
 
 	tvirt = alloc_pgs(size, VIRT_PAGES);
 	p->level     = PRIVILEGE_NORMAL;
@@ -118,14 +118,15 @@ thread_t * spawn(process_t * par, ulong start, int extz, const qword * extv)
 	t->stack  = allocate(tvirt + 2*PAGE_SIZE, 2*PAGE_SIZE, 0);
 	t->state  = STATE_SETUP;
 	t->parent = par;
-	t->rsp    = (qword)&rtop[-5 - extz];
+	t->rsp    = (qword)&rtop[-6 - extz];
 
 	swapin(t->stack, 3);
 
 	ttop = (qword *)(tvirt + PAGE_SIZE);
+	ttop[-6 - extz] = 1; /* Signal that no context data is pushed */
 	ttop[-5 - extz] = start;
 	ttop[-4 - extz] = USER_CS | 3;
-	ttop[-3 - extz] = getfl();
+	ttop[-3 - extz] = getfl() | 0x200;
 	ttop[-2 - extz] = (qword)(rtop - extz);
 	ttop[-1 - extz] = USER_DS | 3;
 

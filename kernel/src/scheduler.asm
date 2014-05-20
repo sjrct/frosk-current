@@ -41,7 +41,7 @@ timer_irq:
 	PUSH_CALLER
 	PUSH_CALLEE
 	SAVE_SEGMENTS
-	push rbx
+	push qword 0 ; say that context data is pushed
 
 	; check locking
 	test byte [scheduler_lock], 1
@@ -87,15 +87,6 @@ timer_irq:
 	mov rdx, 0x7
 	call swapflop
 
-	; push iretq data
-	mov rax, rsp
-	push qword KERN_DS
-	push rax
-	pushfq
-	push qword KERN_CS
-	mov rax, .return_here
-	push rax
-
 	; change old thread status
 	xor rdi, rdi
 	mov rax, [cur_thrd]
@@ -117,35 +108,26 @@ timer_irq:
 	; load rsp
 	mov rsp, [rbx + thread.saved_rsp]
 
+.return_early:
+
 	; interrupt finished/timer reset
 	mov al, 0x20
 	out 0x20, al
 
-	mov al, 0xff
+	mov al, 0x1
 	out 0x40, al
 	out 0x40, al
 
-	or qword [rsp + 0x10], 0x200
-	iretq
-.return_here:
-	cli
+	pop rax
+	test rax, rax
+	jnz .do_iretq
 
-.return:
-	pop rbx
 	RESTORE_SEGMENTS
 	POP_CALLEE
 	POP_CALLER
+
+.do_iretq:
 	iretq
-
-.return_early:
-	mov al, 0x20
-	out 0x20, al
-
-	mov al, 0xff
-	out 0x40, al
-	out 0x40, al
-	jmp .return
-
 
 [section .data]
 

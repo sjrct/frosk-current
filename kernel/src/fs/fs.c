@@ -328,6 +328,7 @@ ulong fs_size(fs_entry_t * e)
 {
 	fnode_t * n;
 
+	assert(e != NULL);
 	assert(e->type == FS_ENT_FILE);
 
 	if (e->u.file.size == FS_SIZE_UNKNOWN) {

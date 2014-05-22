@@ -21,7 +21,7 @@
 static void init_bss(void);
 static void init_ro(void);
 
-void __attribute__((noreturn)) kmain(void)
+void kmain(void)
 {
 
 	init_bss();
@@ -48,9 +48,10 @@ void __attribute__((noreturn)) kmain(void)
 	start_scheduler();
 
 	asm volatile ("sti");
-	for (;;) {
-		asm volatile ("hlt");
-	}
+	asm volatile ("hlt");
+
+	/* We should never reach this */
+	assert(0);
 }
 
 static void init_bss(void)

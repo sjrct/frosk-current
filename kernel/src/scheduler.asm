@@ -18,10 +18,9 @@ struc process
 	.next:      resq 1
 	.first:     resq 1
 	.code:      resq 1
-	.timeslice: resd 1
-	.level:     resd 1
 	.argv:      resq 1
 	.argc:      resd 1
+	.timeslice: resd 1
 endstruc
 
 struc thread
@@ -31,6 +30,7 @@ struc thread
 	.stack:       resq 1
 	.saved_rsp:   resq 1
 	.state:       resd 1
+	.page_fl:     resd 1
 endstruc
 
 [section .text]
@@ -38,10 +38,24 @@ endstruc
 ; this function handles task switching
 global timer_irq
 timer_irq:
+	push rax
+	mov al, 0x20
+	out 0x20, al
+	pop rax
+
+	call yield
+	iretq
+
+
+global yield
+yield:
+	pushfq
 	PUSH_CALLER
 	PUSH_CALLEE
 	SAVE_SEGMENTS
 	push qword 0 ; say that context data is pushed
+
+	cli
 
 	; check locking
 	test byte [scheduler_lock], 1
@@ -111,9 +125,6 @@ timer_irq:
 .return_early:
 
 	; interrupt finished/timer reset
-	mov al, 0x20
-	out 0x20, al
-
 	mov al, 0x1
 	out 0x40, al
 	out 0x40, al
@@ -125,7 +136,8 @@ timer_irq:
 	RESTORE_SEGMENTS
 	POP_CALLEE
 	POP_CALLER
-
+	popfq
+	ret
 .do_iretq:
 	iretq
 

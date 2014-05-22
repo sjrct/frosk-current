@@ -25,7 +25,7 @@ void start_scheduler(void)
 	outb(0x40, 0x00);
 }
 
-process_t * spawn(const byte * data, ulong csz, ulong bsz, ulong entry, int argc, const char ** argv)
+process_t * uspawn(const byte * data, ulong csz, ulong bsz, ulong entry, int argc, const char ** argv)
 {
 	extern byte preamble_code;
 	extern byte preamble_size;
@@ -33,7 +33,7 @@ process_t * spawn(const byte * data, ulong csz, ulong bsz, ulong entry, int argc
 	int j, k;
 	ulong i, n;
 	ulong size, argst;
-	ulong tvirt,preamble;
+	ulong tvirt, preamble;
 	qword extv[3];
 	process_t * p = kalloc(sizeof(process_t));
 
@@ -47,7 +47,6 @@ process_t * spawn(const byte * data, ulong csz, ulong bsz, ulong entry, int argc
 	size  = align(size, PAGE_SIZE) + 2*PAGE_SIZE; /* TODO actually calc argv size */
 
 	tvirt = alloc_pgs(size, VIRT_PAGES);
-	p->level     = PRIVILEGE_NORMAL;
 	p->timeslice = 1000;
 	p->code      = allocate(tvirt, size, 1);
 
@@ -102,11 +101,35 @@ process_t * spawn(const byte * data, ulong csz, ulong bsz, ulong entry, int argc
 	}
 	unlock(&scheduler_lock);
 
-	schedule(p, preamble, countof(extv), extv);
+	schedule(p, preamble, countof(extv), extv, 0);
 	return p;
 }
 
-thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv)
+process_t * kspawn(void (* func)(void))
+{
+	process_t * p = kalloc(sizeof(process_t));
+
+	p->argv = NULL;
+	p->argv = 0;
+	p->code = NULL;
+	p->timeslice = 1000;
+	p->first = NULL;
+
+	getlock(&scheduler_lock);
+	if (head_thrd == NULL) {
+		p->next = p;
+		head_proc = p;
+	} else {
+		p->next = head_proc->next;
+		head_proc->next = p;
+	}
+	unlock(&scheduler_lock);
+
+	schedule(p, (ulong)func, 0, NULL, 1);
+	return p;
+}
+
+thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv, int kthrd)
 {
 	int i;
 	qword tvirt;
@@ -119,16 +142,17 @@ thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv)
 	t->state  = STATE_SETUP;
 	t->parent = par;
 	t->rsp    = (qword)&rtop[-6 - extz];
+	t->page_fl = kthrd ? 3 : 7;
 
 	swapin(t->stack, 3);
 
 	ttop = (qword *)(tvirt + PAGE_SIZE);
 	ttop[-6 - extz] = 1; /* Signal that no context data is pushed */
 	ttop[-5 - extz] = start;
-	ttop[-4 - extz] = USER_CS | 3;
+	ttop[-4 - extz] = kthrd ? KERN_CS : USER_CS | 3;
 	ttop[-3 - extz] = getfl() | 0x200;
 	ttop[-2 - extz] = (qword)(rtop - extz);
-	ttop[-1 - extz] = USER_DS | 3;
+	ttop[-1 - extz] = kthrd ? KERN_DS : USER_DS | 3;
 
 	for (i = 0; i < extz; i++) {
 		ttop[-1 - i] = extv[i];
@@ -139,7 +163,6 @@ thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv)
 	free_pgs(tvirt, 2*PAGE_SIZE, VIRT_PAGES);
 
 	getlock(&scheduler_lock);
-
 	if (head_thrd == NULL) {
 		t->next_sched = t;
 		head_thrd = t;

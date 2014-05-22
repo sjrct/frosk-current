@@ -19,22 +19,15 @@ enum {
 	STATE_STOPPED,
 };
 
-enum {
-	PRIVILEGE_NORMAL = 0,
-	PRIVILEGE_ELEVATED,
-	PRIVILEGE_SUPER,
-};
-
 #pragma pack(push, 1)
 /* reflected in kernel/src/scheduler.asm */
 struct process {
 	process_t * next;
 	thread_t * first;
 	region_t * code;
-	dword timeslice;
-	uint level;
 	char ** argv;
 	int argc;
+	dword timeslice;
 };
 
 struct thread {
@@ -44,12 +37,15 @@ struct thread {
 	region_t * stack;
 	qword rsp;
 	dword state;
+	dword page_fl;
 };
 #pragma pack(pop)
 
 void start_scheduler(void);
-process_t * spawn(const byte *, ulong, ulong, ulong, int, const char **);
-thread_t * schedule(process_t *, ulong, int, const qword *);
+process_t * uspawn(const byte *, ulong, ulong, ulong, int, const char **);
+process_t * kspawn(void (*)(void));
+thread_t * schedule(process_t *, ulong, int, const qword *, int);
+void yield(void);
 
 extern process_t * head_proc;
 extern thread_t * head_thrd;

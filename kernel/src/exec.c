@@ -24,7 +24,7 @@ process_t * bexec(const byte * buf, ulong size, int argc, const char ** argv)
 	fbe_hdr * hdr = (fbe_hdr *)buf;
 
 	if (size > 4 && *(dword*)buf == FBE_MARK) {
-		return spawn(
+		return uspawn(
 			buf + sizeof(fbe_hdr),
 			hdr->code_size,
 			hdr->bss_size,

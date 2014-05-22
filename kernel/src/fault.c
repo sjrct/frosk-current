@@ -7,14 +7,18 @@
 #include "interrupt.h"
 
 #define DBZ 0
+#define UOP 6
+#define SSF 12
 #define GPF 13
 
 void setup_faults(void)
 {
 	/* These faults handlers are declared in the assembly */
-	void dbz(void), gpf(void);
+	void dbz(void), uop(void), ssf(void), gpf(void);
 
 	reg_int(DBZ, dbz);
+	reg_int(UOP, uop);
+	reg_int(SSF, ssf);
 	reg_int(GPF, gpf);
 }
 

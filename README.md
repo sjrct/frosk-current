@@ -9,7 +9,7 @@ Building
 --------
 
 You must have `gcc`, `make`, `nasm` and `ar` (provided usually by `binutils`)
-in order to build a Frosk disk image. Then just init the submodules and run `make` and it everything
+in order to build a Frosk disk image. Then just init the submodules and run `make` and everything
 should go hunky dory:
 
 ```sh

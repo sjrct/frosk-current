@@ -7,6 +7,7 @@
 
 #include <util.h>
 #include <types.h>
+#include "../stubout.h"
 
 typedef struct block block_t;
 typedef struct region region_t;

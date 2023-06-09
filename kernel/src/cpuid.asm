@@ -9,6 +9,8 @@ global has_cpuid
 global cpuid_dword
 global cpuid_string;
 
+
+
 %ifdef __ARCH_X86_64
 has_cpuid:
 	pushfq
@@ -22,11 +24,15 @@ has_cpuid:
 	xor rax, rcx
 	ret
 
-global cpuid_dword
-cpuid_dword:
-	mov rax, rdi
+global get_cpuid
+get_cpuid:
+	mov eax, edi
 	cpuid
-	mov rax, rdx
+    ; cpuid_result_t
+    mov [rsi + 0], eax
+    mov [rsi + 4], ebx
+    mov [rsi + 8], ecx
+    mov [rsi + 12], edx
 	ret
 
 global cpuid_string

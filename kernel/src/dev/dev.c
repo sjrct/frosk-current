@@ -40,6 +40,7 @@ void init_devs(void)
 			dprintf("fixme: detected pci boot medium\n");
 		}
 	}
+  /* TODO remember what the heck I'm doing here */
 	else if (leftovers.dd.size >= 0x1E) {
 		edd_path = leftovers.dd.edd & 0xffff;
 		edd_path += (leftovers.dd.edd >> 12) & 0xffff0;
@@ -76,7 +77,7 @@ qword dev_read(device_t * d, void * buf, qword addr, qword size)
 	/* Read data section not begining on 512-byte boundary, possibly not ending the same way */
 	t = addr % d->block_size;
 	if (addr % d->block_size) {
-		if (m == NULL) m = kalloc(d->block_size);
+		if (m == NULL) { m = kalloc(d->block_size); }
 		if (!d->read(d, m, addr / d->block_size, 1)) goto ret;
 
 		s = d->block_size - t;
@@ -104,13 +105,13 @@ qword dev_read(device_t * d, void * buf, qword addr, qword size)
 
 	/* Read section that ends not on boundary */
 	if (size) {
-		if (m == NULL) m = kalloc(d->block_size);
+		if (m == NULL) { m = kalloc(d->block_size); }
 		if (!d->read(d, m, addr / d->block_size, 1)) goto ret;
 		memcpy(buf, m, size);
 		size -= size;
 	}
 
 ret:
-	if (m != NULL) kfree(m);
+	if (m != NULL) { kfree(m); }
 	return osize - size;
 }

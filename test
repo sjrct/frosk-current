@@ -1,2 +1,2 @@
 #!/bin/sh
-qemu-system-x86_64 frosk.img -serial stdio
+qemu-system-x86_64 -drive file=frosk.img,format=raw -serial stdio

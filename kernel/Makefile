@@ -10,6 +10,7 @@ ENV    := kernel
 CSRCS  := kmain.c \
           exec.c \
           fault.c \
+          mqueue.c \
           paging.c \
           stubout.c \
           interrupt.c \
@@ -33,9 +34,10 @@ ASRCS  := tss.asm \
           syscall.asm \
           interrupt.asm \
           scheduler.asm \
+          simd.asm \
           dev/ps2.asm
 
-LOCAL_CFLAGS  := -ffreestanding -nostdinc -DDEBUG -Wno-unused-parameter
+LOCAL_CFLAGS  := -fno-pic -fno-stack-protector -ffreestanding -nostdinc -DDEBUG -DFROSK_KERNEL -Wno-unused-parameter
 LOCAL_ASFLAGS :=
 LOCAL_LDFLAGS := -ffreestanding -nostdlib -T$(CD)/kernel.ld
 

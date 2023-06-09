@@ -2,29 +2,38 @@
 # estab.mk
 #
 # This file should be the first makefile to be looked at, and looked at only
-# once. Included it relative to the makefile's directory in each primary 
+# once. Included it relative to the makefile's directory in each primary
 # makefile.
 #
 
 SHELL := bash
 
+# Are we building frosk?
+FROSK := 1
+
 # disable implicit rules
 .SUFFIXES:
 
-# directory paths
-TOPD := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+# directory paths: current, top, build
+# current is the directory of the current makefile
+CURD = $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+TOPD := $(CURD)
 BLDD := $(TOPD)/build
+
+default = $(if $1,$1,$2)
 
 # include the configuration file
 include $(TOPD)/config.mk
 
 # programs to use
-CC  := gcc
-LD  := gcc
-AS  := nasm
-RM  := rm -f
-AR  := ar rcu
+CC  := $(call default,$(CC),gcc)
+LD  := $(call default,$(LD),gcc)
+AS  := $(call default,$(AS),nasm)
+RM  := $(call default,$(RM),rm -f)
+AR  := $(call default,$(AR),ar rcD)
 FSB := $(TOPD)/util/fsb/fsb
+HOST_CC := $(call default,$(HOST_CC),gcc)
+HOST_LD := $(call default,$(HOST_LD),gcc)
 
 # setup program flags
 GLOB_CFLAGS  = -Wall -Wextra -D__ARCH=$(ARCH) -I$(TOPD)/include/$(ENV)/

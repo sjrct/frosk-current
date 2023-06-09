@@ -21,4 +21,6 @@
 	#define _COUNOF_DEFINED
 #endif
 
+typedef long ptrdiff_t;
+
 #endif

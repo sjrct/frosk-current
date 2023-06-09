@@ -25,15 +25,19 @@ setup_paging:
 
 page_fault_int:
 	xchg rdi, [rsp]
+  push rbp
+  mov rbp, rsp
 	PUSH_CALLER
 	pushfq
 
+  mov rdx, [ebp + 16]
 	mov rax, cr2
 	mov rsi, rax
 	call page_fault
 
 	popfq
 	POP_CALLER
+  pop rbp
 	pop rdi
 	iretq
 
@@ -47,18 +51,14 @@ setup_paging:
 	ret
 
 page_fault_int:
-	xchg edi, [esp]
 	PUSH_CALLER
-	pushf
 
-	mov eax, cr2
-	push eax
+    mov eax, cr2
+    push eax
 	call page_fault
-	pop eax
+    pop eax
 
-	popf
 	POP_CALLER
-	pop edi
 	iret
 
 %endif

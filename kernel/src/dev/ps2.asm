@@ -4,7 +4,7 @@
 
 %include "stack.inc"
 
-extern kb_put
+extern kb_handle
 global ps2_kb_irq
 
 [default rel]
@@ -16,7 +16,7 @@ ps2_kb_irq:
 	xor rax, rax
 	in al, 0x60
 	mov rdi, rax
-	call kb_put
+	call kb_handle
 
 	mov al, 0x20
 	out 0x20, al

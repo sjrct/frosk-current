@@ -80,6 +80,8 @@ static fnode_t * resolve_node(fptr p)
 			hdr = (fmeta_header_t *)rfsmb;
 			phys = alloc_pgs(hdr->page_size, PHYS_PAGES);
 			virt = alloc_pgs(hdr->page_size, VIRT_PAGES);
+			assert(!(virt % PAGE_SIZE));
+			assert(!(phys % PAGE_SIZE));
 			pageto(virt, phys | KERN_PAGE_FL);
 
 			dev_read(root_dev, (byte *)virt, n->u.branch.lba1 * hdr->page_size, hdr->page_size);
@@ -183,6 +185,8 @@ static void decimate(fs_entry_t *);
 
 static void destroy(fs_entry_t * x)
 {
+	if (x == NULL) return;
+
 	if (x->flags & FS_ENT_HASNAME) {
 		kfree(x->name);
 	}
@@ -231,7 +235,9 @@ fs_entry_t * fs_retrieve(const char * name0, fs_entry_t * x)
 		name++;
 	}
 
-	assert(x != NULL);
+  if (x == NULL) {
+    return NULL;
+  }
 
 	while (*name != 0) {
 		local = name;
@@ -332,6 +338,8 @@ ulong fs_size(fs_entry_t * e)
 	assert(e->type == FS_ENT_FILE);
 
 	if (e->u.file.size == FS_SIZE_UNKNOWN) {
+        assert(~e->flags & FS_ENT_VIRTUAL);
+
 		n = e->node;
 		assert(n != NULL);
 		n = resolve_node(n->u.common.data);
@@ -365,8 +373,14 @@ qword fs_read(byte * buf, qword addr, qword size, fs_entry_t * e)
 		if (e->u.file.read_hook == NULL) return 0;
 		size = e->u.file.read_hook(buf, addr, size, e->u.file.data);
 	} else {
-		if (e->flags & FS_ENT_PRESENT) {
-			memcpy(buf, e->u.file.data + addr, size);
+		if (e->flags & (FS_ENT_PRESENT | FS_ENT_VIRTUAL)) {
+            /* When FS_ENT_PRESENT is set, the data is loaded into memory already. *
+             * When FS_ENT_VIRTUAL is set, the data is always only in memory.      */
+            if (addr < e->u.file.size) {
+                if (addr + size > e->u.file.size)
+                    size = e->u.file.size - addr;
+			    memcpy(buf, e->u.file.data + addr, size);
+            }
 		} else {
 			assert(e->node != NULL);
 
@@ -413,12 +427,12 @@ qword fs_write(byte * buf, qword addr, qword size, fs_entry_t * e)
 		return e->u.file.write_hook(buf, addr, size, e->u.file.data);
 	} else {
 		if (e->flags & FS_ENT_VIRTUAL) {
-			if (addr + size > e->u.file.size) {
-				/* TODO possibly expand file */
-				assert(0);
-			} else {
-				memcpy(e->u.file.data + addr, buf, size);
-			}
+            if (addr < e->u.file.size) {
+                if (addr + size > e->u.file.size)
+                    size = e->u.file.size - addr;
+                memcpy(e->u.file.data + addr, buf, size);
+            }
+            return size;
 		} else {
 			/* TODO write to regular file */
 			assert(0);

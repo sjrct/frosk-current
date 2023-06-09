@@ -106,6 +106,14 @@ int in_region(region_t * r, ulong addr)
 	return addr >= region_lower(r) && addr < region_upper(r);
 }
 
+/**
+ * If the given address is in the region, either assure that there is a block
+ * that contains the given address or create a new block for an existing address
+ *
+ * TODO combine adjacent blocks/add to existing blocks?
+ *
+ * Return 0 if the address is not in the region, 1 otherwise
+ */
 int assure(region_t * r, ulong addr, ulong flags)
 {
 	block_t * b;
@@ -169,6 +177,7 @@ void swapout(region_t * r)
 	region_ls * pv = NULL;
 
 	for (b = r->first; b != NULL; b = b->next) {
+		assert(!(b->virt % PAGE_SIZE));
 		for (offset = 0; offset < b->size; offset += PAGE_SIZE) {
 			pageto(b->virt + offset, 0);
 		}
@@ -191,7 +200,11 @@ void swapout(region_t * r)
 int swapflop(region_t * old, region_t * new, ulong flags)
 {
 	if (old != NULL) swapout(old);
-	if (new != NULL) return swapin(new, flags);
+	if (new != NULL) {
+		// FIXME
+		int r = swapin(new, flags);
+		return r;
+	}
 	return 1;
 }
 

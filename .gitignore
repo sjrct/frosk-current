@@ -5,3 +5,7 @@
 *.fake
 .gdbinit
 frosk.img
+tags
+.vscode
+compile_commands.json
+.cache

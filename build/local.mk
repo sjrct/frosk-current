@@ -38,4 +38,3 @@ ifndef LOCAL_MK_INCLUDED
 endif
 
 CD := $(realpath $(dir $(lastword $(TMP))))
-

@@ -7,13 +7,18 @@
 #include "asm.h"
 #include "debug.h"
 #include "paging.h"
+#include "scheduler.h"
 #include "memory/pages.h"
 
-#define ERROR_PRESENT  0x01
-#define ERROR_WRITE    0x02
-#define ERROR_USER     0x04
-#define ERROR_RESERVED 0x08
-#define ERROR_EXECUTE  0x10
+#define ERROR_PROTECTION   0x01 // Set caused by a protection exception, unset by non-present page
+#define ERROR_WRITE        0x02 // Caused by write if set, read if not
+#define ERROR_USER         0x04 // Caused in user mode if set
+#define ERROR_RESERVED     0x08 // Caused by reserved bit set
+#define ERROR_EXECUTE      0x10 // Caused by an instruction fetch
+#define ERROR_PROTECT_KEYS 0x20 // Caused by a protection key violation
+#define ERROR_SHADOW_STACK 0x40 // Caused by shadow stack access
+#define ERROR_HLAT         0x80 // Caused by HLAT paging issue
+#define ERROR_SGX        0x8000 // Caused by Software Guard Extension
 
 #define PG_SWP_ENT (PM_L1_LOC + PG_SWP_LOC / 0x200)
 
@@ -88,39 +93,46 @@ ulong getpage(ulong virt)
 	return get_entry(virt, PG_SWP_LOC, 12);
 }
 
-void page_fault(ulong error, ulong cr2)
+void print_region(const char *str, region_t *rgn) {
+    dprintf("rgn %s(%d) : %X (%X)\n", str, rgn->growup, rgn->virt, rgn->size);
+
+    block_t *b = rgn->first;
+    while (b != NULL) {
+        dprintf("-> %X->%X (%X)\n", b->virt, b->phys, b->size);
+        b = b->next;
+    }
+}
+
+void page_fault(ulong error, ulong cr2, ulong instr_ptr)
 {
-	dputs("asdfaskdflaj\n");
-	for(;;);
-	/*region * heap;
-	region * stack;
-	kprintf("cr2 = %p\n", cr2);
+	region_t * heap;
+	region_t * stack;
+    ulong page;
 
-	if (error & ERROR_PRESENT) {
-		fatal("Page protection fault (%x) at %p", error, cr2);
-	}
+    if (error == (ERROR_WRITE | ERROR_USER)) {
+        /* Userspace, write, page-not-present error */
+        /* (Shouldn't be reading from unalloced pages yet) */
+        /* TODO swap to disk */
 
-	if (~error & ERROR_USER) {
-		fatal("Kernel page fault (%x) at %p", error, cr2);
-	}
+        page = floor(cr2, PAGE_SIZE);
 
-	assert(~error & ERROR_PRESENT);
+        heap = cur_thrd->parent->code;
+        stack = cur_thrd->stack;
 
-	heap = cur_thrd->parent->code;
-	stack = cur_thrd->stack;
-
-	cr2 = floor(cr2, PAGE_SIZE);
-
-	if (!assure(stack, cr2, 7) && !assure(heap, cr2, 7)) {
-		if (cr2 < LOW_HALF_TOP / 2) {
-			// presume heap
-			grow(heap, cr2);
-			assure(heap, cr2, 7);
-		} else {
-			// presume stack
-			grow(stack, cr2);
-			assure(stack, cr2, 7);
-		}
-	}
-*/
+        if (!assure(stack, page, 7) && !assure(heap, page, 7)) {
+            if (page < LOW_HALF_TOP / 2) {
+                // presume heap
+                grow(heap, page);
+                assure(heap, page, 7);
+            } else {
+                // presume stack
+                grow(stack, page);
+                assure(stack, page, 7);
+            }
+        }
+    } else {
+        dprintf("Unhandlable page fault: error=%X addr=%p", error, cr2);
+        dprintf("At instruction %p\n", instr_ptr);
+	    for(;;);
+    }
 }

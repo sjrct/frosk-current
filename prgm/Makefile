@@ -6,7 +6,7 @@
 include $(BLDD)/local.mk
 
 TARGET := $(CD)/prgm.fake
-PRGM   := start
+PRGM   := start test f-scheme
 PRGMMK := $(foreach P,$(PRGM),$(CD)/$P/Makefile)
 PRGMTR := $(foreach P,$(PRGM),$(CD)/$P/$P)
 PRGMCL := $(foreach T,$(PRGMTR),$T/clean)

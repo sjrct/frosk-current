@@ -47,15 +47,15 @@ setup_irqs:
 	out PIC2 + 1, al
 
 	ret
-	
+
 
 global set_irq
 set_irq:
 	cmp di, 7
-	ja .slave	
+	ja .servant
 	mov dx, PIC1 + 1
 	jmp .master
-.slave:
+.servant:
 	mov dx, PIC2 + 1
 	sub di, 8
 .master:
@@ -64,21 +64,21 @@ set_irq:
 	mov si, 1
 	shl esi, cl
 	not esi
-	
+
 	in al, dx
 	and eax, esi
 	out dx, al
-	
+
 	ret
 
 
 global clr_irq
 clr_irq:
 	cmp di, 7
-	ja .slave	
+	ja .servant
 	mov dx, PIC1 + 1
 	jmp .master
-.slave:
+.servant:
 	mov dx, PIC2 + 1
 	sub di, 8
 .master:

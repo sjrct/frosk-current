@@ -6,9 +6,11 @@
 [section .text]
 
 extern abort
+extern uop_abort
 
 global dbz
 global uop
+global dbl
 global ssf
 global gpf
 
@@ -32,11 +34,20 @@ uop:
 
 	mov rsi, [rsp + 0x10]
 	mov rdi, uop_str
-	call abort
+	call uop_abort
 
 	pop rsi
 	pop rdi
 	iretq
+
+dbl:
+	cli
+	;mov rsi, [rsp + 0x10]
+	;mov rdi, dbl_str
+	;call abort
+.hlt:
+	hlt
+	jmp .hlt
 
 gpf:
 	push rdi
@@ -89,6 +100,7 @@ ssf:
 	push ssf_str
 	call abort
 	add esp, 8
+    iret
 
 %endif
 
@@ -96,5 +108,6 @@ ssf:
 
 dbz_str: db `Division by zero.\n`, 0
 uop_str: db `Undefined opcode at %X.\n`, 0
+dbl_str: db `Double fault at maybe %X.\n`, 0
 ssf_str: db `Stack segment fault: %X\n`, 0
 gpf_str: db `General protection fault: %X\n`, 0

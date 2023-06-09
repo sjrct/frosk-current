@@ -172,4 +172,3 @@ error_cursor:
 	dw 0
 error_str:
 	dw 0
-

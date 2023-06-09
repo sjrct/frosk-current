@@ -7,9 +7,9 @@ include $(BLDD)/local.mk
 
 TARGET := start
 ENV    := prgm
-CSRCS  := start.c
-LIBS   := frosk
-LOCAL_CCFLAGS :=
+CSRCS  := start.c fcurses.c
+LIBS   := frosk cstd
+LOCAL_CFLAGS :=
 
 include $(BLDD)/template.mk
 include $(BLDD)/rules.mk

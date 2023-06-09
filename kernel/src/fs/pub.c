@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include "pub.h"
 
-fs_entry_t * pub_fs_aquire(const char * name, fs_entry_t * cd)
+fs_entry_t * pub_fs_acquire(const char * name, fs_entry_t * cd)
 {
 	fs_entry_t * f;
 

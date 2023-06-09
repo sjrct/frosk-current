@@ -34,7 +34,39 @@ void setup_kernel_memory(void)
 	staged->size = ADJ_PAGE_SIZE;
 }
 
-void * kalloc(ulong size)
+void print_memory(void) {
+    int first = 1;
+    chunk_t *curr = head;
+
+    do {
+        if (first) {
+            first = 0;
+        } else {
+            dprintf("->");
+        }
+
+        dprintf("%p(%x)", curr, curr->size);
+        curr = head->next;
+    } while (curr != head);
+
+    dprintf("\n");
+}
+
+void stage_new_page(void) {
+	ulong phys, virt;
+
+	// replace the stage page
+	virt = alloc_pgs(PAGE_SIZE, VIRT_PAGES);
+	phys = alloc_pgs(PAGE_SIZE, PHYS_PAGES);
+	assert(!(virt % PAGE_SIZE));
+	assert(!(phys % PAGE_SIZE));
+	pageto(virt, phys | KERN_PAGE_FL);
+
+	staged = (chunk_t *)virt;
+	staged->size = ADJ_PAGE_SIZE;
+}
+
+void * _kalloc(ulong size)
 {
 	ulong adj_size, l;
 	ulong phys, virt;
@@ -46,11 +78,12 @@ void * kalloc(ulong size)
 
 	if (size > ADJ_PAGE_SIZE) {
 		// big alloc, get some new pages
-
 		adj_size = align(size + sizeof(chunk_t), PAGE_SIZE);
 		virt = alloc_pgs(adj_size, VIRT_PAGES);
 		phys = alloc_pgs(adj_size, PHYS_PAGES);
 
+		assert(!(virt % PAGE_SIZE));
+		assert(!(phys % PAGE_SIZE));
 		for (l = 0; l < adj_size; l += PAGE_SIZE) {
 			pageto(virt + l, (phys + l) | KERN_PAGE_FL);
 		}
@@ -77,7 +110,7 @@ void * kalloc(ulong size)
 				staged->next = head->next;
 				head->next = staged;
 				head = staged;
-				staged = NULL;
+				stage_new_page();
 				break;
 			}
 		}
@@ -88,7 +121,7 @@ void * kalloc(ulong size)
 
 		prev = head = staged;
 		head->next = head;
-		staged = NULL;
+		stage_new_page();
 	}
 
 	if (head->size == size) {
@@ -114,22 +147,10 @@ void * kalloc(ulong size)
 
 	free_kernel_size -= size;
 
-	if (staged == NULL) {
-		// replace the stage page
-		dprintf("kalloc: needed to use staged\n");
-
-		virt = alloc_pgs(PAGE_SIZE, VIRT_PAGES);
-		phys = alloc_pgs(PAGE_SIZE, PHYS_PAGES);
-		pageto(virt, phys | KERN_PAGE_FL);
-
-		staged = (chunk_t *)virt;
-		staged->size = ADJ_PAGE_SIZE;
-	}
-
 	return (void *)(ret + 1);
 }
 
-void kfree(void * ptr)
+void _kfree(void * ptr)
 {
 	chunk_t * prev, * it;
 	chunk_t * ck = (chunk_t *)ptr - 1;

@@ -8,19 +8,36 @@
 size_t strlen(const char * a)
 {
 	size_t i;
-	for (i = 0; a[i] != 0; i++) i++;
+	for (i = 0; a[i] != 0; i++);
 	return i;
 }
 
-char * strcpy(char * d, const char * s)
+size_t strnlen(const char *a, size_t n)
 {
+	size_t i;
+	for (i = 0; a[i] != 0 && i < n; i++);
+	return i;
+}
+
+char * strcpy(char * d0, const char * s)
+{
+    char *d = d0;
 	while (*s != 0) {
 		*d = *s;
 		d++;
 		s++;
 	}
 	*d = 0;
-	return d;
+	return d0;
+}
+
+char * strncpy(char * d, const char * s, size_t max)
+{
+    size_t i;
+    for (i = 0; i < max && s[i]; i++) {
+        d[i] = s[i];
+    }
+    return d;
 }
 
 int strcmp(const char * a, const char * b)
@@ -65,6 +82,15 @@ void * memcpy(void * vdest, const void * vsrc, size_t size)
 	return vdest;
 }
 
+void *memset(void *vptr, int value, size_t num) {
+    size_t i;
+    char *ptr = vptr;
+
+    for (i = 0; i < num; i++) ptr[i] = value;
+
+    return vptr;
+}
+
 int memcmp(const void * va, const void * vb, size_t size)
 {
 	size_t i;
@@ -79,3 +105,23 @@ int memcmp(const void * va, const void * vb, size_t size)
 
 	return 0;
 }
+
+#ifndef FROSK_KERNEL
+#include <stdlib.h>
+
+char * strdup(const char *src) {
+    size_t len = strlen(src) + 1;
+    char *dst = malloc(len);
+    memcpy(dst, src, len);
+    dst[len] = 0;
+    return dst;
+}
+
+char * strndup(const char *src, size_t max) {
+    size_t len = strnlen(src, max);
+    char *dst = malloc(len + 1);
+    memcpy(dst, src, len);
+    dst[len] = 0;
+    return dst;
+}
+#endif

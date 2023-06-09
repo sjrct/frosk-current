@@ -1,0 +1,3 @@
+[submodule "prgm/f-scheme"]
+	path = prgm/f-scheme
+	url = git@github.com:sjrct/f-scheme.git

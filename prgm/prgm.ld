@@ -8,7 +8,8 @@ ENTRY(main)
 SECTIONS
 {
 	/* reflected as USPACE_BOT in include/kernel/common.both */
-	. = 0x100000 - 0x20;
+    _start = 0x100000;
+	. = _start - SIZEOF(.hdr);
 
 	.hdr . :
 	{
@@ -22,8 +23,8 @@ SECTIONS
 
 		LONG(0xFBE0FBE0);
 		LONG(0x1);
-		QUAD(SIZEOF(.text) + SIZEOF(.data))
-		QUAD(SIZEOF(.bss))
+        QUAD(ADDR(.bss) - _start)
+        QUAD(SIZEOF(.bss))
 		QUAD(main)
 	}
 
@@ -43,7 +44,7 @@ SECTIONS
 		* (.bss COMMON)
 	}
 
-	_heap_bottom = ALIGN(8);
+	_heap_bottom = ALIGN(16);
 
 	/DISCARD/ :
 	{

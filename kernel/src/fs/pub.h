@@ -7,7 +7,7 @@
 
 #include "fs.h"
 
-fs_entry_t * pub_fs_aquire(const char *, fs_entry_t *);
+fs_entry_t * pub_fs_acquire(const char *, fs_entry_t *);
 void pub_fs_release(fs_entry_t *);
 fs_entry_t * pub_fs_first(fs_entry_t *);
 fs_entry_t * pub_fs_next(fs_entry_t *);

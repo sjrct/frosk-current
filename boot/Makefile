@@ -12,12 +12,12 @@ LOCAL_ASFLAGS := -fbin
 define block
 $(TARGET): $(CD)/src/boot.asm
 	$(V3) $(AS) $(ASFLAGS) -M -MP -MT $$@ $$< > $(CD)/boot.d
-	$$(call V1,$(AS) $(ASFLAGS) -o $$@ $$<,AS $$@)
+	$$(call V1,$(AS) $(ASFLAGS) -o $$@ $$<,AS  $$@)
 
 .PHONY: $(TARGET)/clean
 $(TARGET)/clean:
 	$(V3) $(RM) $(CD)/boot.d
-	$$(call V1,$(RM) $(TARGET),RM $(TARGET))
+	$$(call V1,$(RM) $(TARGET),RM  $(TARGET))
 endef
 
 $(eval $(block))

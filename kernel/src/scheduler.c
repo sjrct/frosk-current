@@ -25,17 +25,48 @@ void start_scheduler(void)
 	outb(0x40, 0x00);
 }
 
+static process_t *create_process(void) {
+	process_t * p = kalloc(sizeof(process_t));
+
+	p->first     = NULL;
+	p->timeslice = 1000;
+	init_mqueue(&p->mqueue);
+
+	if (cur_thrd != NULL) {
+		p->parent = cur_thrd->parent;
+	} else {
+		p->parent = NULL;
+	}
+
+	return p;
+}
+
+/* Add the process to the process list */
+static void add_process(process_t *p) {
+	getlock(&scheduler_lock);
+	if (head_proc == NULL) {
+		p->next = p;
+		head_proc = p;
+	} else {
+		p->next = head_proc->next;
+		head_proc->next = p;
+	}
+	unlock(&scheduler_lock);
+}
+
 process_t * uspawn(const byte * data, ulong csz, ulong bsz, ulong entry, int argc, const char ** argv)
 {
 	extern byte preamble_code;
 	extern byte preamble_size;
+
+    dprintf("uspawn(data=%p, csz=%X, bsz=%X, entry=%X, argc=%d, argv=%p)\n", data, csz, bsz, entry, argc, argv);
 
 	int j, k;
 	ulong i, n;
 	ulong size, argst;
 	ulong tvirt, preamble;
 	qword extv[3];
-	process_t * p = kalloc(sizeof(process_t));
+	process_t *p = create_process();
 
 	size = csz + bsz;
 	for (j = 0; j < argc; j++) {
@@ -47,8 +78,7 @@ process_t * uspawn(const byte * data, ulong csz, ulong bsz, ulong entry, int arg
 	size  = align(size, PAGE_SIZE) + 2*PAGE_SIZE; /* TODO actually calc argv size */
 
 	tvirt = alloc_pgs(size, VIRT_PAGES);
-	p->timeslice = 1000;
-	p->code      = allocate(tvirt, size, 1);
+	p->code = allocate(tvirt, size, 1);
 
 	swapin(p->code, 3);
 
@@ -60,12 +90,14 @@ process_t * uspawn(const byte * data, ulong csz, ulong bsz, ulong entry, int arg
 		atb(i) = 0;
 	}
 
+    // Copy the preamble
 	preamble = (i - tvirt) + USPACE_BOT;
 	for (n = 0; n < (ulong)&preamble_size; n++) {
 		atb(i) = (&preamble_code)[n];
 		i++;
 	}
 
+    // Copy argv
 	argst = (i - tvirt) + USPACE_BOT;
 	for (j = 0; j < argc; j++) {
 		for (k = 0; argv[j][k] != 0; k++) {
@@ -89,43 +121,23 @@ process_t * uspawn(const byte * data, ulong csz, ulong bsz, ulong entry, int arg
 	shift_rgn(p->code, USPACE_BOT);
 	free_pgs(tvirt, size, VIRT_PAGES);
 
-	p->first = NULL;
-
-	getlock(&scheduler_lock);
-	if (head_thrd == NULL) {
-		p->next = p;
-		head_proc = p;
-	} else {
-		p->next = head_proc->next;
-		head_proc->next = p;
-	}
-	unlock(&scheduler_lock);
-
+	add_process(p);
 	schedule(p, preamble, countof(extv), extv, 0);
+
 	return p;
 }
 
 process_t * kspawn(void (* func)(void))
 {
-	process_t * p = kalloc(sizeof(process_t));
+	process_t * p = create_process();
 
 	p->argv = NULL;
 	p->argv = 0;
 	p->code = NULL;
-	p->timeslice = 1000;
-	p->first = NULL;
 
-	getlock(&scheduler_lock);
-	if (head_thrd == NULL) {
-		p->next = p;
-		head_proc = p;
-	} else {
-		p->next = head_proc->next;
-		head_proc->next = p;
-	}
-	unlock(&scheduler_lock);
-
+	add_process(p);
 	schedule(p, (ulong)func, 0, NULL, 1);
+
 	return p;
 }
 
@@ -150,7 +162,7 @@ thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv, 
 	ttop[-6 - extz] = 1; /* Signal that no context data is pushed */
 	ttop[-5 - extz] = start;
 	ttop[-4 - extz] = kthrd ? KERN_CS : USER_CS | 3;
-	ttop[-3 - extz] = getfl() | 0x200;
+	ttop[-3 - extz] = getfl() | 0x200; /* TODO constant */
 	ttop[-2 - extz] = (qword)(rtop - extz);
 	ttop[-1 - extz] = kthrd ? KERN_DS : USER_DS | 3;
 
@@ -177,4 +189,43 @@ thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv, 
 	t->state = STATE_READY;
 
 	return t;
+}
+
+void dump_threads(void) {
+	char current;
+	thread_t *t;
+
+	if (trylock(&scheduler_lock) && head_thrd != NULL) {
+		t = head_thrd;
+
+		dprintf("Threads:\n");
+		do {
+			current = cur_thrd == t ? '*' : ' ';
+			dprintf(" %c%p (proc: %p, rsp: %X, state: %x, page_fl: %x)\n",
+					current, t, t->parent, t->rsp, t->state, t->page_fl);
+			t = t->next_sched;
+		} while (t != head_thrd);
+
+		unlock(&scheduler_lock);
+	} else {
+		dprintf("Scheduler locked\n");
+	}
+}
+
+void dump_procs(void) {
+	process_t *p;
+
+	if (trylock(&scheduler_lock) && head_proc != NULL) {
+		p = head_proc;
+
+		dprintf("Processes:\n");
+		do {
+			dprintf("  %p\n", p);
+			p = p->next;
+		} while (p != head_proc);
+
+		unlock(&scheduler_lock);
+	} else {
+		dprintf("Scheduler locked\n");
+	}
 }

@@ -19,6 +19,12 @@ typedef struct {
 #define FBE_MARK 0xFBE0FBE0
 #define SHEBANG  "#!"
 
+process_t * pub_bexec(const byte *buf, ulong size, int argc, const char **argv)
+{
+    // TODO
+    return bexec(buf, size, argc, argv);
+}
+
 process_t * bexec(const byte * buf, ulong size, int argc, const char ** argv)
 {
 	fbe_hdr * hdr = (fbe_hdr *)buf;
@@ -35,6 +41,12 @@ process_t * bexec(const byte * buf, ulong size, int argc, const char ** argv)
 	}
 
 	return NULL;
+}
+
+process_t * pub_fexec(const char * fn, int argc, const char ** argv, fs_entry_t * cd)
+{
+    // TODO
+    return fexec(fn, argc, argv, cd);
 }
 
 process_t * fexec(const char * fn, int argc, const char ** argv, fs_entry_t * cd)
@@ -54,6 +66,8 @@ process_t * fexec(const char * fn, int argc, const char ** argv, fs_entry_t * cd
 			fs_read(buf, 0, size, file);
 
 			if (size > 2 && !memcmp(buf, SHEBANG, sizeof(SHEBANG)-1)) {
+                /* TODO keep this? */
+                dprintf("Shebang execing\n");
 				nargc = argc + 1;
 				nargv = kalloc(sizeof(char*) * nargc);
 

@@ -26,22 +26,22 @@ void setup_pages(void)
 		if (leftovers.memory_map[i].type == 1) {
 			base = leftovers.memory_map[i].base;
 			size = leftovers.memory_map[i].size;
-		
+
 			diff = !!(base < DEF_STACK_LOC) * DEF_STACK_LOC;
 			if (base % PAGE_SIZE) {
 				diff += PAGE_SIZE - base % PAGE_SIZE;
 			}
-			
+
 			if (size > diff) {
 				size -= diff;
 				base += diff;
-		
+
 				pg = kalloc(sizeof(pages_t));
 				pg->addr = base;
 				pg->size = floor(size, PAGE_SIZE);
 
 				dprintf("Physical memory of %p bytes at %p\n", pg->size, pg->addr);
-		
+
 				if (heads[PHYS_PAGES] == NULL) {
 					pg->next = pg;
 					heads[PHYS_PAGES] = pg;
@@ -78,7 +78,8 @@ ulong alloc_pgs(ulong size, int type)
 				pg->size -= size;
 				ret = pg->addr + pg->size;
 			}
-			
+
+            //dprintf("alloc_pages(%X, %d) -> %X\n", size, type, ret);
 			return ret;
 		}
 	

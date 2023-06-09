@@ -6,10 +6,13 @@
 include $(BLDD)/local.mk
 
 TARGET := $(CD)/lib.fake
-LIB    := frosk
+LIB    := frosk cstd
 LIBMK  := $(foreach P,$(LIB),$(CD)/$P/Makefile)
 LIBTR  := $(foreach P,$(LIB),$(CD)/$P/$P.a)
 LIBCL  := $(foreach T,$(LIBTR),$T/clean)
+
+ENV_CFLAGS := -fno-pic -fno-stack-protector
+ENV_LDFLAGS :=
 
 define block
 $(TARGET): $(LIBTR)
@@ -23,4 +26,3 @@ endef
 $(eval $(block))
 
 include $(LIBMK)
-

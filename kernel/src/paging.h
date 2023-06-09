@@ -12,6 +12,6 @@
 
 void setup_paging(void);
 void pageto(ulong, ulong);
-void page_fault(ulong, ulong);
+void page_fault(ulong, ulong, ulong);
 
 #endif

@@ -5,5 +5,11 @@
 f:[name = kernel.bin, actual = kernel/kernel.bin]
 
 d:[name = prgm, contents = {
-	f:[name = start, actual = prgm/start/start]
+    f:[name = start, actual = prgm/start/start]
+    f:[name = scheme, actual = prgm/f-scheme/f-scheme]
+    f:[name = test, actual = prgm/test/test]
+}]
+
+d:[name = scheme, contents = {
+    f:[name = stdlib.scm, actual = prgm/scheme/stdlib.scm]
 }]

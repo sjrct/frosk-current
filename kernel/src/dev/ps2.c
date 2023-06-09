@@ -9,11 +9,15 @@
 #include "../interrupt.h"
 #include "../scheduler.h"
 #include "../memory/kernel.h"
+#include "../memory/pages.h"
 
 #define KB_BUFFER_SIZE 1024
 
+#define ESCAPE 1
+
 byte kb_buffer[KB_BUFFER_SIZE];
 fs_entry_t * kb_buffer_file = NULL;
+int kb_buffer_head = KB_BUFFER_SIZE - 1;
 
 typedef struct ls {
 	struct ls * next;
@@ -27,12 +31,11 @@ static process_t * delay_proc = NULL;
 
 static int kb_put_actual(byte sc)
 {
-	static qword kb_count = 0;
-
 	if (!trylock(&kb_buffer_file->lock)) return 0;
 
-	kb_buffer[kb_count % KB_BUFFER_SIZE] = sc;
-	kb_buffer_file->u.file.size = ++kb_count;
+    kb_buffer_head = (kb_buffer_head + 1) % KB_BUFFER_SIZE;
+	kb_buffer[kb_buffer_head] = sc;
+	kb_buffer_file->u.file.size++;
 
 	unlock(&kb_buffer_file->lock);
 
@@ -42,6 +45,7 @@ static int kb_put_actual(byte sc)
 static void kb_put_delayed(void)
 {
 	ls_t * l;
+    // FIXME
 
 	for (;;) {
 		if (first != NULL) {
@@ -65,6 +69,8 @@ void kb_put(byte sc)
 	assert(kb_buffer_file != NULL);
 
 	if (!kb_put_actual(sc)) {
+        // FIXME
+        dprintf("delaying\n");
 		l = kalloc(sizeof(ls_t));
 		l->next = NULL;
 		l->sc = sc;
@@ -84,25 +90,46 @@ void kb_put(byte sc)
 	}
 }
 
+void kb_handle(byte sc)
+{
+	void dump_threads(void), dump_procs(void);
+	void dump_pgs(int type);
+
+	if (sc == ESCAPE) {
+		// Special case escape to get debug info
+		asm volatile ("cli");
+		dprintf("Hit escape\n\n");
+		dump_threads();
+		dprintf("\n");
+		dump_procs();
+		dprintf("\nPhysical pages:\n");
+		dump_pgs(PHYS_PAGES);
+		dprintf("\nVirtual pages:\n");
+		dump_pgs(VIRT_PAGES);
+		asm volatile ("sti");
+	} else {
+		kb_put(sc);
+	}
+}
+
 qword kb_fs_read(byte * to, qword addr, qword size, void * unused)
 {
-	qword rem, i;
+    qword j;
 
-	if (addr > KB_BUFFER_SIZE) {
-		return 0;
-	} else {
-		i = addr;
+    // FIXME use addr
+
+	size = size > kb_buffer_file->u.file.size
+        ? kb_buffer_file->u.file.size
+        : size;
+
+	for (j = 0; j < size; j++) {
+        to[j] = kb_buffer[kb_buffer_head];
+        kb_buffer_head = (kb_buffer_head - 1) % KB_BUFFER_SIZE;
 	}
 
-	rem = KB_BUFFER_SIZE - i;
-	rem = size > rem ? rem : size;
+    kb_buffer_file->u.file.size -= size;
 
-	for (; rem; --rem) {
-		to[rem - 1] = kb_buffer[i];
-		i = (i + 1) % KB_BUFFER_SIZE;
-	}
-
-	return size - rem;
+	return size;
 }
 
 void init_ps2_kb(void)

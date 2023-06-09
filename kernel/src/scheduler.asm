@@ -13,14 +13,18 @@ extern scheduler_lock
 extern head_thrd
 extern head_proc
 
+extern dprintf
+
 ; reflected in include/kernel/scheduler.h
 struc process
 	.next:      resq 1
+	.parent:    resq 1
 	.first:     resq 1
 	.code:      resq 1
 	.argv:      resq 1
 	.argc:      resd 1
 	.timeslice: resd 1
+	; mqueue here
 endstruc
 
 struc thread
@@ -31,6 +35,7 @@ struc thread
 	.saved_rsp:   resq 1
 	.state:       resd 1
 	.page_fl:     resd 1
+    .fxsave_block:resb 512
 endstruc
 
 [section .text]
@@ -53,16 +58,23 @@ yield:
 	PUSH_CALLER
 	PUSH_CALLEE
 	SAVE_SEGMENTS
-	push qword 0 ; say that context data is pushed
 
-	cli
+    ; save fpu state
+	mov rcx, [cur_thrd]
+    test rcx, rcx
+    jz .ct_null3
+    fxsave64 [rcx + thread.fxsave_block]
+.ct_null3:
+
+	push qword 0 ; say that context data is pushed
 
 	; check locking
 	test byte [scheduler_lock], 1
 	jz .return_early
 
+
+
 	; find ready thread
-	mov rcx, [cur_thrd]
 	mov rbx, [abs head_thrd]
 	test rbx, rbx
 	jz .return_early
@@ -133,9 +145,16 @@ yield:
 	test rax, rax
 	jnz .do_iretq
 
+	mov rcx, [cur_thrd]
+    test rcx, rcx
+    jz .ct_null4
+    fxrstor64 [rcx + thread.fxsave_block]
+.ct_null4:
+
 	RESTORE_SEGMENTS
 	POP_CALLEE
 	POP_CALLER
+.already_locked:
 	popfq
 	ret
 .do_iretq:
@@ -163,6 +182,11 @@ preamble_code:
 	mov r15, 0xc0de15dead
 	jmp $
 .end:
+
+mismatch_str:
+	db "! got %X expected %X for offset %X", 10, 0
+foobie:
+	db "! foobie!", 10, 0
 
 align 8
 

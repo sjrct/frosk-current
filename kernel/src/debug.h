@@ -12,6 +12,7 @@
 	#define assert(X) \
 		if (!(X)) { \
 			dprintf("Assertation '%s' on line %d in %s failed.\n", #X, __LINE__, __FILE__); \
+            for(;;); \
 		}
 	#define do_assert(X) assert(X)
 #else

@@ -2,8 +2,9 @@
 # build/ar-template.mk
 #
 
-ENV_CFLAGS  :=
-ENV_ASFLAGS :=
+# Default the environment programs to the general ones
+ENV_CC := $(CC)
+ENV_LD := $(LD)
 
 -include $(BLDD)/$(ENV).mk
 
@@ -17,18 +18,18 @@ ASRCS  := $(addprefix $(CD)/src/,$(ASRCS))
 
 define block
 $(TARGET): $(COBJS) $(AOBJS)
-	$$(call V1,$(AR) -o $$@ $$^,AR $$@)
+	$$(call V1,$(AR) $$@ $$^,AR  $$@)
 
 $(CD)/obj/%.c.o: $(CD)/src/%.c
 	$(V3) mkdir -p $$(dir $$@)
 	$(V3) mkdir -p $$(dir $$(subst /src/,/dep/,$$<))
-	$$(call V1,$(CC) $(CFLAGS) -c -o $$@ $$<,CC $$@)
+	$$(call V1,$(CC) $(CFLAGS) -c -o $$@ $$<,CC  $$@)
 	$(V3) $(CC) $(CFLAGS) -M -MP -MT $$@ -MF $$(subst /src/,/dep/,$$<).d $$<
 
 $(CD)/obj/%.asm.o: $(CD)/src/%.asm
 	$(V3) mkdir -p $(CD)/obj
 	$(V3) mkdir -p $(CD)/dep
-	$$(call V1,$(AS) $(ASFLAGS) -o $$@ $$<,AS $$@)
+	$$(call V1,$(AS) $(ASFLAGS) -o $$@ $$<,AS  $$@)
 	$(V3) $(AS) $(ASFLAGS) -M -MP -MT $$@ $$< > $$(subst /src/,/dep/,$$<).d
 
 .PHONY: $(TARGET)/clean

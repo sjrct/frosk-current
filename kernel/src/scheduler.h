@@ -5,10 +5,11 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "memory/region.h"
-
 typedef struct process process_t;
 typedef struct thread thread_t;
+
+#include "memory/region.h"
+#include "mqueue.h"
 
 enum {
 	STATE_INVALID = -1,
@@ -20,14 +21,17 @@ enum {
 };
 
 #pragma pack(push, 1)
-/* reflected in kernel/src/scheduler.asm */
 struct process {
 	process_t * next;
+	process_t * parent;
 	thread_t * first;
 	region_t * code;
 	char ** argv;
 	int argc;
 	dword timeslice;
+	/* if updating this, update kernel/src/scheduler.asm */
+	/* mqueue is not defined in assembly, which is why it is at the end */
+    mqueue_t mqueue;
 };
 
 struct thread {
@@ -38,6 +42,8 @@ struct thread {
 	qword rsp;
 	dword state;
 	dword page_fl;
+    byte fxsave_block[512];
+	/* if updating this, update kernel/src/scheduler.asm */
 };
 #pragma pack(pop)
 

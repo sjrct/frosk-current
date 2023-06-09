@@ -9,8 +9,16 @@ Building
 --------
 
 You must have `gcc`, `make`, `nasm` and `ar` (provided usually by `binutils`)
-in order to build a Frosk disk image. Then just run `make` and it everything
-should go hunky dory. If `make` is giving you trouble make sure
+in order to build a Frosk disk image. Then just init the submodules and run `make` and it everything
+should go hunky dory:
+
+```sh
+git submodule init
+git submodule update
+make
+```
+
+If `make` is giving you trouble make sure
 you are using GNU make (`gmake`). You probably can't use `clang` as of now
 because it doesn't have a builtin for the `floor`/`ceil` functions which I rely
 on to implement those in the C standard library (I was lazy), but you can give
@@ -25,9 +33,11 @@ following values in `config.mk`:
 CC := x86_64-elf-gcc
 LD := x86_64-elf-gcc
 AR := x86_64-elf-ar
+HOST_CC := gcc
+HOST_LD := gcc
 ```
 
-Note that you will also need a cross-platform version of `ar`.
+If you are installing a different cross compiler or building your own update `config.mk` following the above template. Note that you will also need a cross-platform version of `ar`.
 
 The built disk image is a raw disk image, meaning it can be directly written to
 a disk or partition with `dd`. You can run it easily in `qemu` with the

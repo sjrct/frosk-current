@@ -25,72 +25,72 @@
 static ulong get_entry(ulong addr, ulong tbl, int shf)
 {
 #ifdef __ARCH_X86_64
-	#define LSHIFT 3
+    #define LSHIFT 3
 #else
-	#define LSHIFT 2
+    #define LSHIFT 2
 #endif
 
-	return tbl + (((addr >> shf) << LSHIFT) & 0xfff);
+    return tbl + (((addr >> shf) << LSHIFT) & 0xfff);
 
 #undef LSHIFT
 }
 
 static void down(ulong addr, ulong tbl, int shift)
 {
-	long i;
-	ulong entry = get_entry(addr, tbl, shift);
-	ulong v = atq(entry);
+    long i;
+    ulong entry = get_entry(addr, tbl, shift);
+    ulong v = atq(entry);
 
-	if (!(v & 1)) {
-		v = alloc_pgs(PAGE_SIZE, PHYS_PAGES) | 7;
+    if (!(v & 1)) {
+        v = alloc_pgs(PAGE_SIZE, PHYS_PAGES) | 7;
 
-		atq(entry) = v;
-		atq(PG_SWP_ENT) = v;
-		invlpg(PG_SWP_LOC);
+        atq(entry) = v;
+        atq(PG_SWP_ENT) = v;
+        invlpg(PG_SWP_LOC);
 
-		for (i = 0; i < PAGE_SIZE; i++) atb(PG_SWP_LOC + i) = 0;
-	} else {
-		atq(PG_SWP_ENT) = v;
-		invlpg(PG_SWP_LOC);
-	}
+        for (i = 0; i < PAGE_SIZE; i++) atb(PG_SWP_LOC + i) = 0;
+    } else {
+        atq(PG_SWP_ENT) = v;
+        invlpg(PG_SWP_LOC);
+    }
 }
 
 void pageto(ulong virt, ulong value)
 {
-	assert(!(virt % PAGE_SIZE));
-	invlpg(virt);
+    assert(!(virt % PAGE_SIZE));
+    invlpg(virt);
 
 #ifdef __ARCH_X86_64
-	if (virt >= HIGH_HALF_BOT) {
-		virt -= NON_CANON_SIZE;
-	}
+    if (virt >= HIGH_HALF_BOT) {
+        virt -= NON_CANON_SIZE;
+    }
 
-	down(virt, PM_L4_LOC,  39);
-	down(virt, PG_SWP_LOC, 30);
-	down(virt, PG_SWP_LOC, 21);
+    down(virt, PM_L4_LOC,  39);
+    down(virt, PG_SWP_LOC, 30);
+    down(virt, PG_SWP_LOC, 21);
 #else
-	down(virt, PM_L2_LOC, 22);
+    down(virt, PM_L2_LOC, 22);
 #endif
-	atq(get_entry(virt, PG_SWP_LOC, 12)) = value;
+    atq(get_entry(virt, PG_SWP_LOC, 12)) = value;
 }
 
 ulong getpage(ulong virt)
 {
-	assert(!(virt % PAGE_SIZE));
-	invlpg(virt);
+    assert(!(virt % PAGE_SIZE));
+    invlpg(virt);
 
 #ifdef __ARCH_X86_64
-	if (virt >= HIGH_HALF_BOT) {
-		virt -= NON_CANON_SIZE;
-	}
+    if (virt >= HIGH_HALF_BOT) {
+        virt -= NON_CANON_SIZE;
+    }
 
-	down(virt, PM_L4_LOC,  39);
-	down(virt, PG_SWP_LOC, 30);
-	down(virt, PG_SWP_LOC, 21);
+    down(virt, PM_L4_LOC,  39);
+    down(virt, PG_SWP_LOC, 30);
+    down(virt, PG_SWP_LOC, 21);
 #else
-	down(virt, PM_L2_LOC, 22);
+    down(virt, PM_L2_LOC, 22);
 #endif
-	return get_entry(virt, PG_SWP_LOC, 12);
+    return get_entry(virt, PG_SWP_LOC, 12);
 }
 
 void print_region(const char *str, region_t *rgn) {
@@ -105,8 +105,8 @@ void print_region(const char *str, region_t *rgn) {
 
 void page_fault(ulong error, ulong cr2, ulong instr_ptr)
 {
-	region_t * heap;
-	region_t * stack;
+    region_t * heap;
+    region_t * stack;
     ulong page;
 
     if (error == (ERROR_WRITE | ERROR_USER)) {
@@ -133,6 +133,6 @@ void page_fault(ulong error, ulong cr2, ulong instr_ptr)
     } else {
         dprintf("Unhandlable page fault: error=%X addr=%p", error, cr2);
         dprintf("At instruction %p\n", instr_ptr);
-	    for(;;);
+        for(;;);
     }
 }

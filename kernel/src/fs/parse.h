@@ -8,9 +8,9 @@
 #include <types.h>
 
 typedef struct path_parse {
-	uint len;
-	const char * name;
-	struct path_parse * next;
+    uint len;
+    const char * name;
+    struct path_parse * next;
 } path_parse_t;
 
 path_parse_t * parse_path(const char *);

@@ -8,29 +8,29 @@
 #include <types.h>
 
 #ifndef INLINE
-	#define INLINE __attribute__((always_inline)) static inline
+    #define INLINE __attribute__((always_inline)) static inline
 #endif
 
 #define _ASM_IO(T, M) \
 INLINE void out##M(ushort port, T data) { \
-	asm volatile ("out" #M " %0, %1" : : "a" (data), "Nd" (port)); \
+    asm volatile ("out" #M " %0, %1" : : "a" (data), "Nd" (port)); \
 } \
 INLINE T in##M(ushort port) { \
-	T got; \
-	asm volatile ("in" #M " %1, %0" : "=a" (got) : "Nd" (port)); \
-	return got; \
+    T got; \
+    asm volatile ("in" #M " %1, %0" : "=a" (got) : "Nd" (port)); \
+    return got; \
 }
 
 #define _ASM_0(S) \
 INLINE void S(void) { \
-	asm volatile( #S ); \
+    asm volatile( #S ); \
 }
 
 #define _ASM_REG(R) \
 INLINE ulong get##R(void) { \
-	ulong r; \
-	asm volatile ("movq %%" #R ", %0" : "=r" (r)); \
-	return r; \
+    ulong r; \
+    asm volatile ("movq %%" #R ", %0" : "=r" (r)); \
+    return r; \
 }
 
 _ASM_IO(byte,  b)
@@ -60,17 +60,17 @@ _ASM_REG(r14)
 _ASM_REG(r15)
 
 INLINE void io_wait(void) {
-	asm volatile("outb %%al, $0x80" :: "a" (0));
+    asm volatile("outb %%al, $0x80" :: "a" (0));
 }
 
 INLINE ulong getfl(void) {
-	ulong r;
-	asm volatile ("pushfq; movq (%%rsp), %0; addq $8, %%rsp" : "=r" (r));
-	return r;
+    ulong r;
+    asm volatile ("pushfq; movq (%%rsp), %0; addq $8, %%rsp" : "=r" (r));
+    return r;
 }
 
 INLINE void invlpg(ulong pg) {
-	asm volatile ("invlpg (%0)" :: "r" (pg) : "memory");
+    asm volatile ("invlpg (%0)" :: "r" (pg) : "memory");
 }
 
 #undef _ASM_IO

@@ -17,33 +17,33 @@
 #define FLAG_VIRT 1
 
 typedef struct node {
-	unsigned char perm;
-	unsigned char flags;
+    unsigned char perm;
+    unsigned char flags;
 
-	enum {
-		TYPE_FILE,
-		TYPE_DIR,
-		TYPE_IND,
-		TYPE_BLOCK,
-		TYPE_STR,
-	} type;
+    enum {
+        TYPE_FILE,
+        TYPE_DIR,
+        TYPE_IND,
+        TYPE_BLOCK,
+        TYPE_STR,
+    } type;
 
-	union {
-		struct {
-			node_t * name;
-			node_t * data;
-			node_t * owner;
-			node_t * next;
-		} cmn;
+    union {
+        struct {
+            node_t * name;
+            node_t * data;
+            node_t * owner;
+            node_t * next;
+        } cmn;
 
-		struct {
-			node_t * 
-		}
-	} u;
+        struct {
+            node_t * 
+        }
+    } u;
 } node_t;
 
 typedef struct fs {
-	node_t * root;
+    node_t * root;
 } fs_t;
 
 fs_t * create_fs(unsigned, char *, unsigned);

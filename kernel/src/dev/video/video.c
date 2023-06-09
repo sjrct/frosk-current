@@ -55,13 +55,13 @@ void video_detect(void)
     dprintf("Screen dim: %dx%x\n", leftovers.vmi.width, leftovers.vmi.height);
     dprintf("Mode, segment = %x, %x:%x\n", leftovers.vmi.mode_attr, leftovers.vmi.wina_seg, leftovers.vmi.winb_seg);
 
-	if (leftovers.vmi.mode_attr & MODE_TEXT) {
-		/* text mode */
-		video_file = fs_enter("tvb",
-				(void *)(ulong)(leftovers.vmi.wina_seg * 0x10),
-				leftovers.vmi.width * leftovers.vmi.height * 2,
-				dev_dir
-		);
+    if (leftovers.vmi.mode_attr & MODE_TEXT) {
+        /* text mode */
+        video_file = fs_enter("tvb",
+                (void *)(ulong)(leftovers.vmi.wina_seg * 0x10),
+                leftovers.vmi.width * leftovers.vmi.height * 2,
+                dev_dir
+        );
 
         /* cursor file */
         cursor_file = fs_enter("cursor", NULL, 0, dev_dir);
@@ -69,8 +69,8 @@ void video_detect(void)
         cursor_file->u.file.read_hook = cursor_read;
         cursor_file->u.file.write_hook = cursor_write;
         cursor_file->u.file.size = sizeof(struct cursor);
-	} else {
-		/* TODO pixel mode */
-	}
+    } else {
+        /* TODO pixel mode */
+    }
 }
 

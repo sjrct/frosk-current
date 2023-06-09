@@ -13,14 +13,14 @@ typedef struct block block_t;
 typedef struct region region_t;
 
 struct block {
-	ulong virt, phys, size;
-	block_t * next;
+    ulong virt, phys, size;
+    block_t * next;
 };
 
 struct region {
-	ulong virt, size;
-	block_t * first, * last;
-	int growup;
+    ulong virt, size;
+    block_t * first, * last;
+    int growup;
 };
 
 #define region_lower(R) (R->growup ? R->virt : R->virt - R->size)

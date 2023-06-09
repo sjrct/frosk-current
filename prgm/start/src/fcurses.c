@@ -6,7 +6,7 @@ static int format_width[] = {
 
 fc_screen_t create_cga_screen(void) {
     // Default cga screen
-	file_t out = fs_acquire("/dev/tvb", 0);
+    file_t out = fs_acquire("/dev/tvb", 0);
     file_t cursorf = fs_acquire("/dev/cursor", 0);
     return (fc_screen_t){
         .width = 80,

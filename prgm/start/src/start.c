@@ -316,7 +316,7 @@ int main() {
     box_screen(&scr, 11);
     fc_move_cursor(&scr, win.x, win.y);
 
-	file_t inp;
+    file_t inp;
     ulong size;
     long i;
     char buf[128];
@@ -331,7 +331,7 @@ int main() {
     ulong msg_size;
     next_message_t next = 0;
 
-	for (;;) {
+    for (;;) {
         /* Output to screen from child stdout/stderr */
         do {
             msg_size = proc_recv_msg(msg, sizeof(msg), &next);
@@ -350,8 +350,8 @@ int main() {
         proc_stop_recv(&next);
 
         /* Input to child stdin */
-	    inp = fs_acquire("/dev/kb", 0);
-		if (inp && (size = fs_size(inp))) {
+        inp = fs_acquire("/dev/kb", 0);
+        if (inp && (size = fs_size(inp))) {
             if (size + 1 > sizeof(buf)) {
                 // FIXME
                 fc_wputs(&win, "\nToo much input!\n", 15);
@@ -362,11 +362,11 @@ int main() {
             for (i = size - 1; i >= 0; i--) {
                 process_key(buf[i], &win, &state, pid);
             }
-		}
-	    fs_release(inp);
+        }
+        fs_release(inp);
         wait_clocks(ROUGH_CLOCK_SEC / 8);
-	}
+    }
     halt();
-	return 0;
+    return 0;
 }
 

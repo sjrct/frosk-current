@@ -8,33 +8,33 @@
 
 path_parse_t * parse_path(const char * path)
 {
-	path_parse_t * c, * p;
-	path_parse_t * s = NULL;
+    path_parse_t * c, * p;
+    path_parse_t * s = NULL;
 
-	while (*path) {
-		c = kalloc(sizeof(path_parse_t));
+    while (*path) {
+        c = kalloc(sizeof(path_parse_t));
 
-		if (s == NULL) s = c;
-		else p->next = c;
+        if (s == NULL) s = c;
+        else p->next = c;
 
-		c->name = path;
-		c->len  = 0;
-		c->next = NULL;
+        c->name = path;
+        c->len  = 0;
+        c->next = NULL;
 
-		while (*path && *path != '/') {
-			c->len++;
-			path++;
-		}
+        while (*path && *path != '/') {
+            c->len++;
+            path++;
+        }
 
-		p = c;
-	}
+        p = c;
+    }
 
-	return s;
+    return s;
 }
 
 void free_path_parse(path_parse_t * prs)
 {
-	if (prs == NULL) return;
-	free_path_parse(prs->next);
-	kfree(prs);
+    if (prs == NULL) return;
+    free_path_parse(prs->next);
+    kfree(prs);
 }

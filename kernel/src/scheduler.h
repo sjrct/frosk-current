@@ -12,38 +12,38 @@ typedef struct thread thread_t;
 #include "mqueue.h"
 
 enum {
-	STATE_INVALID = -1,
-	STATE_READY = 0,
-	STATE_SETUP,
-	STATE_RUNNING,
-	STATE_WAITING,
-	STATE_STOPPED,
+    STATE_INVALID = -1,
+    STATE_READY = 0,
+    STATE_SETUP,
+    STATE_RUNNING,
+    STATE_WAITING,
+    STATE_STOPPED,
 };
 
 #pragma pack(push, 1)
 struct process {
-	process_t * next;
-	process_t * parent;
-	thread_t * first;
-	region_t * code;
-	char ** argv;
-	int argc;
-	dword timeslice;
-	/* if updating this, update kernel/src/scheduler.asm */
-	/* mqueue is not defined in assembly, which is why it is at the end */
+    process_t * next;
+    process_t * parent;
+    thread_t * first;
+    region_t * code;
+    char ** argv;
+    int argc;
+    dword timeslice;
+    /* if updating this, update kernel/src/scheduler.asm */
+    /* mqueue is not defined in assembly, which is why it is at the end */
     mqueue_t mqueue;
 };
 
 struct thread {
-	process_t * parent;
-	thread_t * next_inproc;
-	thread_t * next_sched;
-	region_t * stack;
-	qword rsp;
-	dword state;
-	dword page_fl;
+    process_t * parent;
+    thread_t * next_inproc;
+    thread_t * next_sched;
+    region_t * stack;
+    qword rsp;
+    dword state;
+    dword page_fl;
     byte fxsave_block[512];
-	/* if updating this, update kernel/src/scheduler.asm */
+    /* if updating this, update kernel/src/scheduler.asm */
 };
 #pragma pack(pop)
 

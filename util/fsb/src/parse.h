@@ -10,10 +10,10 @@
 #include "fs.h"
 
 typedef struct source {
-	FILE * f;
-	int ungot;
-	int offset;
-	char * str;
+    FILE * f;
+    int ungot;
+    int offset;
+    char * str;
 } source_t;
 
 extern char * input_file;

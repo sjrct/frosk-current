@@ -7,15 +7,15 @@
 #undef assert
 
 #ifdef DEBUG
-	#include "stubout.h"
+    #include "stubout.h"
 
-	#define assert(X) \
-		if (!(X)) { \
-			dprintf("Assertation '%s' on line %d in %s failed.\n", #X, __LINE__, __FILE__); \
+    #define assert(X) \
+        if (!(X)) { \
+            dprintf("Assertation '%s' on line %d in %s failed.\n", #X, __LINE__, __FILE__); \
             for(;;); \
-		}
-	#define do_assert(X) assert(X)
+        }
+    #define do_assert(X) assert(X)
 #else
-	#define assert(X)
-	#define do_assert
+    #define assert(X)
+    #define do_assert
 #endif

@@ -8,9 +8,9 @@
 %macro SYSCALL 2
 global __syscall%1
 __syscall%1:
-	mov rax, %2
-	int 0x40
-	ret
+    mov rax, %2
+    int 0x40
+    ret
 %endmacro
 
 SYSCALL 0, rdi

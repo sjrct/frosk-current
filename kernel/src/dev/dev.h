@@ -10,12 +10,12 @@
 #include "../fs/fs.h"
 
 typedef struct device {
-	void * data;
-	void (* enable) (struct device *);
-	void (* disable)(struct device *);
-	qword (* read) (struct device *, void *, qword, qword);
-	qword (* write)(struct device *, void *, qword, qword);
-	ulong block_size;
+    void * data;
+    void (* enable) (struct device *);
+    void (* disable)(struct device *);
+    qword (* read) (struct device *, void *, qword, qword);
+    qword (* write)(struct device *, void *, qword, qword);
+    ulong block_size;
 } device_t;
 
 extern device_t * root_dev;

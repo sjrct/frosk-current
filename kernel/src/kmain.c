@@ -43,20 +43,20 @@ void kmain(void)
         cpuid_string(0, vendor);
         dprintf("CPU Vendor ID: %s\n");
 
-		cpuid_result_t result;
-		get_cpuid(1, &result);
-		dprintf("cpuid 01h:eax ebx ecx edx = %x %x %x %x\n"
+        cpuid_result_t result;
+        get_cpuid(1, &result);
+        dprintf("cpuid 01h:eax ebx ecx edx = %x %x %x %x\n"
            , result.eax, result.ebx, result.ecx, result.edx);
 
-		if (!sse_available()) {
-			dprintf("SSE is not available, this is not supported\n");
-		}
-		if (!fxsr_available()) {
-			dprintf("FXSR is not available, this is not supported\n");
-		}
+        if (!sse_available()) {
+            dprintf("SSE is not available, this is not supported\n");
+        }
+        if (!fxsr_available()) {
+            dprintf("FXSR is not available, this is not supported\n");
+        }
     }
 
-	enable_sse();
+    enable_sse();
 
     fexec("/prgm/start", 0, NULL, NULL);
     start_scheduler();

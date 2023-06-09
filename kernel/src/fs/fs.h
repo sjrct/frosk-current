@@ -23,30 +23,30 @@
 #define FS_ENT_STATIC  0x20
 
 typedef struct fs_entry {
-	struct fs_entry * left;
-	struct fs_entry * right;
-	struct fs_entry * parent; /* not the parent directory */
-	char * name;
-	fnode_t * node;
-	uint type, flags;
-	lock_t lock;
+    struct fs_entry * left;
+    struct fs_entry * right;
+    struct fs_entry * parent; /* not the parent directory */
+    char * name;
+    fnode_t * node;
+    uint type, flags;
+    lock_t lock;
 
-	union {
-		struct {
-			void * data;
-			ulong size;
-			qword (* read_hook) (byte *, qword, qword, void *);
-			qword (* write_hook)(byte *, qword, qword, void *);
-		} file;
+    union {
+        struct {
+            void * data;
+            ulong size;
+            qword (* read_hook) (byte *, qword, qword, void *);
+            qword (* write_hook)(byte *, qword, qword, void *);
+        } file;
 
-		struct {
-			struct fs_entry * root;
-		} directory;
+        struct {
+            struct fs_entry * root;
+        } directory;
 
-		struct {
-			char * dest;
-		} indirect;
-	} u;
+        struct {
+            char * dest;
+        } indirect;
+    } u;
 } fs_entry_t;
 
 extern fs_entry_t * root_dir;

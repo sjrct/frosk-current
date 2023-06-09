@@ -109,25 +109,25 @@ char * utoa(ulong val, char *buf, int radix, int letter_a) {
         return buf;
     }
 
-	div = 1;
-	tmp = val / radix;
+    div = 1;
+    tmp = val / radix;
 
-	while (tmp > 0) {
-		tmp /= radix;
-		div *= radix;
-	}
+    while (tmp > 0) {
+        tmp /= radix;
+        div *= radix;
+    }
 
     i = 0;
-	while (div > 0) {
-		ch = val / div;
-		val %= div;
-		div /= radix;
+    while (div > 0) {
+        ch = val / div;
+        val %= div;
+        div /= radix;
 
-		if (ch < 10) ch += '0';
-		else ch += letter_a - 10;
+        if (ch < 10) ch += '0';
+        else ch += letter_a - 10;
 
         buf[i++] = ch;
-	}
+    }
     buf[i] = '\0';
 
     return buf;

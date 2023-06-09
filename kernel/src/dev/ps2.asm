@@ -11,15 +11,15 @@ global ps2_kb_irq
 [section .text]
 
 ps2_kb_irq:
-	PUSH_CALLER
+    PUSH_CALLER
 
-	xor rax, rax
-	in al, 0x60
-	mov rdi, rax
-	call kb_handle
+    xor rax, rax
+    in al, 0x60
+    mov rdi, rax
+    call kb_handle
 
-	mov al, 0x20
-	out 0x20, al
+    mov al, 0x20
+    out 0x20, al
 
-	POP_CALLER
-	iretq
+    POP_CALLER
+    iretq

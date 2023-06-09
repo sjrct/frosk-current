@@ -9,8 +9,8 @@
 #include "dev.h"
 
 typedef struct pci_device {
-	device_t * device;
-	byte bus, dev, fun;
+    device_t * device;
+    byte bus, dev, fun;
 } pci_device_t;
 
 void pci_detect(void);

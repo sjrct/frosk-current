@@ -65,9 +65,9 @@ ulong alloc_pgs(ulong size, int type)
     ulong ret;
     pages_t * prev = heads[type];
     pages_t * pg = prev->next;
-    
+
     size = align(size, PAGE_SIZE);
-    
+
     do {
         if (pg->size >= size) {
             if (pg->size == size) {

@@ -24,20 +24,19 @@ setup_paging:
     ret
 
 page_fault_int:
+    cli
     xchg rdi, [rsp]
-  push rbp
-  mov rbp, rsp
+    push rbp
+    mov rbp, rsp
     PUSH_CALLER
-    pushfq
 
-  mov rdx, [ebp + 16]
+    mov rdx, [rbp + 16]
     mov rax, cr2
     mov rsi, rax
     call page_fault
 
-    popfq
     POP_CALLER
-  pop rbp
+    pop rbp
     pop rdi
     iretq
 
@@ -62,3 +61,5 @@ page_fault_int:
     iret
 
 %endif
+
+

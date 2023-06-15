@@ -34,6 +34,7 @@ void reg_int(int, void (*)());
 void reg_irq(int, void (*)());
 void set_irq(int);
 void clr_irq(int);
+int is_interrupt_set(int);
 
 void dummy_int(void);
 

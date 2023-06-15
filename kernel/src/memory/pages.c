@@ -95,25 +95,25 @@ void free_pgs(ulong addr, ulong size, int type)
 {
     pages_t * prev = heads[type];
     pages_t * pg = prev->next;
-    
+
     size = floor(size, PAGE_SIZE);
-    
+
     do {
         if (pg->addr + pg->size == addr) {
             pg->size += size;
             return;
         }
-        
+
         if (addr + size == pg->addr) {
             pg->size += size;
             pg->addr = addr;
             return;
         }
-    
+
         prev = pg;
         pg = pg->next;
     } while (prev != heads[type]);
-    
+
     pg = kalloc(sizeof(pages_t));
     pg->addr = addr;
     pg->size = size;

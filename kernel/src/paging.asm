@@ -61,5 +61,3 @@ page_fault_int:
     iret
 
 %endif
-
-

@@ -68,3 +68,12 @@ void reg_irq(int i, void (*func)())
     reg_int(IRQ0 + i, func);
     set_irq(i);
 }
+
+int is_interrupt_set(int i)
+{
+#ifdef __ARCH_X86_64
+    return idt[i].lowaddr != 0 || idt[i].midaddr != 0 ||  idt[i].highaddr != 0;
+#else
+    return idt[i].lowaddr != 0 || idt[i].midaddr != 0;
+#endif
+}

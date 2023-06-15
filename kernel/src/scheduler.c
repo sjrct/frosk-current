@@ -4,6 +4,7 @@
 
 #include <common.h>
 #include <string.h>
+#include "debug.h"
 #include "asm.h"
 #include "lock.h"
 #include "interrupt.h"
@@ -63,25 +64,28 @@ process_t * uspawn(const byte * data, ulong csz, ulong bsz, ulong entry, int arg
 
     int j, k;
     ulong i, n;
-    ulong size, argst;
+    ulong size;
     ulong tvirt, preamble;
     qword extv[3];
+    char **argvt;
     process_t *p = create_process();
 
     size = csz + bsz;
+    size += (ulong)&preamble_size;
+    size = align(size, sizeof(char *));
+    size += argc * sizeof(char *);
     for (j = 0; j < argc; j++) {
         size += strlen(argv[j]) + 1;
     }
 
-    size  = align(size, sizeof(char *));
-    size += argc * sizeof(char *);
-    size  = align(size, PAGE_SIZE) + 2*PAGE_SIZE; /* TODO actually calc argv size */
-
+    // Temporarily allocate virtual pages for the code region
     tvirt = alloc_pgs(size, VIRT_PAGES);
     p->code = allocate(tvirt, size, 1);
 
     swapin(p->code, 3);
 
+    // Throughout this and the following sections, `i` points to the location in
+    // temporary code region where we code in the code/rodata/argv etc
     for (i = tvirt; i < tvirt + csz; i++) {
         atb(i) = data[i - tvirt];
     }
@@ -91,34 +95,35 @@ process_t * uspawn(const byte * data, ulong csz, ulong bsz, ulong entry, int arg
     }
 
     // Copy the preamble
-    preamble = (i - tvirt) + USPACE_BOT;
+    preamble = i - tvirt + USPACE_BOT; /* To be used as the start point */
     for (n = 0; n < (ulong)&preamble_size; n++) {
-        atb(i) = (&preamble_code)[n];
-        i++;
+        atb(i++) = (&preamble_code)[n];
     }
 
     // Copy argv
-    argst = (i - tvirt) + USPACE_BOT;
+    i = align(i, sizeof(char *));
+    argvt = (char **)i;
+    i += argc * sizeof(char *);
+
     for (j = 0; j < argc; j++) {
+        argvt[j] = (char *)(i - tvirt + USPACE_BOT);
         for (k = 0; argv[j][k] != 0; k++) {
             atb(i++) = argv[j][k];
         }
         atb(i++) = 0;
     }
 
-    i = align(i, sizeof(char *));
-    extv[0] = entry;
-    extv[1] = (i - tvirt) + USPACE_BOT;
-    extv[2] = argc;
+    // Copied size == allocated size
+    assert(i - tvirt == size);
 
-    for (j = 0; j < argc; j++) {
-        at(i, char *) = (char *)argst;
-        argst += strlen(argv[j]) + 1;
-        i += sizeof(char *);
-    }
+    // Values to push onto the stack to be used by the preamble
+    extv[0] = entry;
+    extv[1] = (ulong)argvt - tvirt + USPACE_BOT;
+    extv[2] = argc;
 
     swapout(p->code);
     shift_rgn(p->code, USPACE_BOT);
+
     free_pgs(tvirt, size, VIRT_PAGES);
 
     add_process(p);

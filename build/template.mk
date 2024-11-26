@@ -24,7 +24,7 @@ LIBS := $(foreach X,$(LIBS),$(TOPD)/lib/$X/$X.a)
 
 define block
 $(TARGET): $(COBJS) $(AOBJS)
-	$$(call V1,$(ENV_LD) $$(LDFLAGS) -o $$@ $(COBJS) $(AOBJS) $(LIBS),LD  $$@)
+	$$(call V1,$(ENV_LD) $(LDFLAGS) -o $$@ $(COBJS) $(AOBJS) $(LIBS),LD  $$@)
 
 $(CD)/obj/%.c.o: $(CD)/src/%.c
 	$(V3) mkdir -p $$(dir $$@)

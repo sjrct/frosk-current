@@ -17,7 +17,7 @@ $(TARGET): $(CD)/src/boot.asm
 .PHONY: $(TARGET)/clean
 $(TARGET)/clean:
 	$(V3) $(RM) $(CD)/boot.d
-	$$(call V1,$(RM) $(TARGET),RM  $(TARGET))
+	$$(call V1,$(RM) $(TARGET),RM $(TARGET))
 endef
 
 $(eval $(block))

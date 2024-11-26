@@ -21,7 +21,7 @@ $(TARGET): $(SUBTR) default.fsd
 
 .PHONY: $(TARGET)/clean
 $(TARGET)/clean: $(SUBCL)
-	$$(call V1,$(RM) $(TARGET),RM  $(TARGET))
+	$$(call V1,$(RM) $(TARGET),RM $(TARGET))
 endef
 
 $(eval $(block))

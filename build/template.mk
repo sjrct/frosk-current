@@ -42,7 +42,7 @@ $(CD)/obj/%.asm.o: $(CD)/src/%.asm
 $(TARGET)/clean:
 	$$(call V1,$(RM) -r $(CD)/obj/,RM $(CD)/obj/)
 	$$(call V1,$(RM) -r $(CD)/dep/,RM $(CD)/dep/)
-	$$(call V1,$(RM) $(TARGET),RM  $(TARGET))
+	$$(call V1,$(RM) $(TARGET),RM $(TARGET))
 endef
 
 $(eval $(block))

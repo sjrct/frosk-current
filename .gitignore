@@ -3,6 +3,7 @@
 *.a
 *.bin
 *.fake
+*.dbg
 .gdbinit
 frosk.img
 tags

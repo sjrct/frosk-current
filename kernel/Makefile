@@ -41,5 +41,18 @@ LOCAL_CFLAGS  := -fno-pic -fno-stack-protector -ffreestanding -nostdinc -DDEBUG 
 LOCAL_ASFLAGS :=
 LOCAL_LDFLAGS := -ffreestanding -nostdlib -T$(CD)/kernel.ld
 
+DEBUG_LDFLAGS := -g -no-pie -m64 -ffreestanding -nostdlib -Wl,--build-id=none -T $(CD)/debug.ld
+
 include $(BLDD)/template.mk
 include $(BLDD)/rules.mk
+
+define extra
+.PHONY: kernel
+$(TARGET): $(CD)/kernel.dbg
+
+# Build debug symbols object
+$(CD)/kernel.dbg: $(COBJS) $(AOBJS)
+	$$(call V1,$(ENV_LD) $$(DEBUG_LDFLAGS) -o $$@ $(COBJS) $(AOBJS),LD  $$@)
+endef
+
+$(eval $(extra))

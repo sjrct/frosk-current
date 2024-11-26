@@ -146,8 +146,19 @@ process_t * kspawn(void (* func)(void))
     return p;
 }
 
-thread_t * schedule(process_t * par, ulong start, int extz, const qword * extv, int kthrd)
+/*
+ * Adds a thread to a scheduler so that it will start executing.
+ *
+ * Parameters:
+ *   par   - parent process
+ *   start - address where the execution should begin
+ *   extz  - number of extra variables to push to stack
+ *   extv  - extra variables to push to the stack (such as for the preamble)
+ *   kthrd - does this thread have kernel permissions?
+ */
+thread_t * schedule(process_t *par, ulong start, int extz, const qword *extv, int kthrd)
 {
+    dprintf("schedule(start=%X, extz=%d, etxv=%p, kthrd=%d)\n", start, extz, extv, kthrd);
     int i;
     qword tvirt;
     qword * ttop;

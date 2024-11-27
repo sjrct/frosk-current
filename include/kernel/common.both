@@ -16,7 +16,8 @@ define( TSS_SEG_LOC,   0x9000 )
 define( KMEM_START,    0xA000 )
 define( KERNEL_LOC,    0x10000 ) ;// reflected in 'kernel/kernel.ld'
 define( DEF_STACK_LOC, 0x80000 )
-define( USPACE_BOT,    0x100000 ) ;// reflected in 'prgm/prgm.ld'
+;// Everything below this is the first page table, which is by identity paged
+define( USPACE_BOT,    0x200000 ) ;// reflected in 'prgm/prgm.ld'
 
 define( PAGE_SIZE,      0x1000 )
 

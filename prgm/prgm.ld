@@ -8,7 +8,7 @@ ENTRY(main)
 SECTIONS
 {
 	/* reflected as USPACE_BOT in include/kernel/common.both */
-    _start = 0x100000;
+    _start = 0x200000;
 	. = _start - SIZEOF(.hdr);
 
 	.hdr . :

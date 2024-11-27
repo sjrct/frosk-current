@@ -130,7 +130,7 @@ void page_fault(ulong error, ulong cr2, ulong instr_ptr)
         if (!assure(stack, page, 7) && !assure(heap, page, 7)) {
             if (page < LOW_HALF_TOP / 2) {
                 // presume heap
-                grow(heap, page);
+                grow(heap, page + PAGE_SIZE);
                 assure(heap, page, 7);
             } else {
                 // presume stack

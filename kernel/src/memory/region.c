@@ -87,17 +87,21 @@ void destroy(region_t * r)
 
 void grow(region_t * r, ulong to)
 {
-    long diff = to - r->virt;
+    long new_size = to - r->virt;
 
-    assert(r->growup || diff <= 0);
-    assert(!r->growup || diff >= 0);
+    assert(r->growup || new_size <= 0);
+    assert(!r->growup || new_size >= 0);
 
-    if (!r->growup) diff = -diff;
+    if (!r->growup) new_size = -new_size;
 
-    if (r->size < (ulong)diff) {
-        r->size = align(diff, PAGE_SIZE);
+    dprintf("grow(region={virt=%X, size=%X, growup=%d}, to=%X) | new_size=%X\n", r->virt, r->size, r->growup, to, new_size);
+
+    if (r->size < (ulong)new_size) {
+        // Grow the region
+        r->size = align(new_size, PAGE_SIZE);
     } else {
-        assert(r->size < (ulong)diff);
+        // We're actually asking to shrink the region, which isn't expected
+        assert(r->size < (ulong)new_size);
     }
 }
 
